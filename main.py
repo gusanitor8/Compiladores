@@ -1,12 +1,15 @@
 from ShuntingYard.shunting_yard import ShuntingYard
 from ShuntingYard.parse_tree_builder import ParseTree
+from DirectConstruction import DirectConstruction
 
 if __name__ == "__main__":
     regex = ShuntingYard().getPostfixRegex()
-    tree = ParseTree(regex[0] + str("#."))  # TODO: add a # to the end of the regex
+    tree = ParseTree(regex[0])  # TODO: add a # to the end of the regex
 
-    tree.print_tree()
+    # tree.print_tree()
     tree = tree.get_tree()
+    afd = DirectConstruction(tree)
+
 
 
 
