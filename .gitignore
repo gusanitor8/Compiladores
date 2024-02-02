@@ -1,1 +1,6 @@
 /.idea
+/out
+__pycache__/
+*.pyc
+
+ShuntingYard/__pycache__/

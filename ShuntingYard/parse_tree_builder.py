@@ -1,4 +1,4 @@
-from tree_node import TreeNode
+from ShuntingYard.tree_node import TreeNode
 
 
 class ParseTree:
