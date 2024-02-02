@@ -6,6 +6,7 @@ class DirectConstruction:
         self.parse_tree = parse_tree
 
     def _nullable(self, node: TreeNode):
+
         pass
 
     def _firstpos(self, node: TreeNode):
