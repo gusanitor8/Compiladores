@@ -13,6 +13,12 @@ class DirectConstruction:
         self._nullable_nodes = self._nullable()
         self.first_positions = self._firstpos()
 
+        # # Initialize followpos dictionary
+        # self.followpos = {}
+
+        # # Calculate followpos
+        # self._followpos(self.parse_tree, self.followpos, self.first_positions, self._nullable_nodes)
+
     def _normalize_tree(self, tree: TreeNode):
         """
         This method normalizes the tree by adding a '.' at the root of the tree
@@ -137,8 +143,17 @@ class DirectConstruction:
                 elif node.value in ['?', '*']:
                     last_positions[node] = last_positions[node.left]
 
-    def _followpos(self, node: TreeNode):
-        pass
+    def _followpos(self, node: TreeNode, follow_pos_dict, first_pos, is_nullable):  
+        if node.value == '.':
+            for pos in self._lastpos(node.left):
+                follow_pos_dict.setdefault(pos, set()).update(self._firstpos(node.right))
+        elif node.value == '*':
+            for pos in self._lastpos(node.left):
+                follow_pos_dict.setdefault(pos, set()).update(self._firstpos(node.left))
+        elif node.value == '#':
+            pass  # '#' node does not have any follow positions
+        elif node.value not in [EPSILON, '|']:
+            pass  # other leaf nodes don't need follow positions
 
     def _create_initial_dfa_state(self):
         pass
