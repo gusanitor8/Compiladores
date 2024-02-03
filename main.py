@@ -7,8 +7,9 @@ if __name__ == "__main__":
     tree = ParseTree(regex[0])  # TODO: add a # to the end of the regex
 
     # tree.print_tree()
+    nodes = tree.get_nodes()
     tree = tree.get_tree()
-    afd = DirectConstruction(tree)
+    afd = DirectConstruction(tree, nodes)
 
 
 

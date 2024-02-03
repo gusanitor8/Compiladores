@@ -7,13 +7,17 @@ class ParseTree:
         self.unary_operators = ['?', '*', '+']
         self.binary_operators = ['|', '.']
 
-        self.tree: TreeNode = self._build_tree()
+        self._nodes: set = set()
+        self._tree: TreeNode = self._build_tree()
+
+    def get_nodes(self):
+        return self._nodes
 
     def get_tree(self):
-        return self.tree
+        return self._tree
 
     def print_tree(self):
-        self.tree.print_tree()
+        self._tree.print_tree()
 
     def _build_tree(self):
         """
@@ -27,13 +31,20 @@ class ParseTree:
                     node = TreeNode(value=char)
                     node.left = stack.pop()
                     stack.append(node)
+
+                    self._nodes.add(node)  # Add the node to the set of nodes
                 elif char in self.binary_operators:
                     node = TreeNode(value=char)
                     node.right = stack.pop()
                     node.left = stack.pop()
                     stack.append(node)
+
+                    self._nodes.add(node)  # Add the node to the set of nodes
                 else:
-                    stack.append(TreeNode(char))
+                    node = TreeNode(value=char)
+                    stack.append(node)
+
+                    self._nodes.add(node)  # Add the node to the set of nodes
 
             return stack.pop()
         except IndexError:
