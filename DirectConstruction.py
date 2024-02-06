@@ -13,11 +13,6 @@ class DirectConstruction:
         self._nullable_nodes = self._nullable()
         self.first_positions = self._firstpos()
 
-        # # Initialize followpos dictionary
-        # self.followpos = {}
-
-        # # Calculate followpos
-        # self._followpos(self.parse_tree, self.followpos, self.first_positions, self._nullable_nodes)
 
     def _normalize_tree(self, tree: TreeNode):
         """
@@ -143,7 +138,12 @@ class DirectConstruction:
                 elif node.value in ['?', '*']:
                     last_positions[node] = last_positions[node.left]
 
-    def _followpos(self, node: TreeNode, follow_pos_dict, first_pos, is_nullable):  
+    def _followpos(self, node: TreeNode, follow_pos_dict: dict):  
+        '''
+        This method calculates the followpos of the nodes in the parse tree
+        :param node: TreeNode
+        :param follow_pos_dict: dict
+        :return: None'''
         if node.value == '.':
             for pos in self._lastpos(node.left):
                 follow_pos_dict.setdefault(pos, set()).update(self._firstpos(node.right))
@@ -155,11 +155,34 @@ class DirectConstruction:
         elif node.value not in [EPSILON, '|']:
             pass  # other leaf nodes don't need follow positions
 
-    def _create_initial_dfa_state(self):
+    def _create_initial_DFA_state(self):
+        # initial_state = self.first_positions[self.parse_tree]  # Initial state is the firstpos of the root node
+        # return initial_state
         pass
+
 
     def _transition_table(self):
-        pass
+        # transition_table = {}
 
+        # for node, firstpos in self.first_positions.items():
+        #     for symbol in alphabet:  # You need to define your alphabet
+        #         next_state = set()
+        #         for pos in firstpos:
+        #             # Get the followpos of the position for the given symbol
+        #             if pos in self.followpos and symbol in self.followpos[pos]:
+        #                 next_state.update(self.followpos[pos][symbol])
+        #         transition_table[(node, symbol)] = next_state
+
+        # return transition_table
+        pass
+    
     def _final_states(self):
+        # final_states = []
+
+        # for node, firstpos in self.first_positions.items():
+        #     if self.node_positions[self.parse_tree] in firstpos:
+        #         final_states.append(node)
+
+        # return final_states
+
         pass
