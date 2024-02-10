@@ -140,4 +140,3 @@ class DeterministicFiniteAutomata:
         :return: Node
         """
         return self._final
-

@@ -1,78 +1,90 @@
 from Automata import DeterministicFiniteAutomata, Automata
 from Node import Node, EPSILON
-from typing import Set
+from typing import Set, Dict, FrozenSet
 
 
 class NfaToDfa:
-    def __init__(self, afn: Automata):
-        self.DFA_states = {}
-        self.initial_DFA_state: Node = None
-        self.afn = afn
-
-    def make_dfa(self):
-        initial_eclosure = self.get_eclosure({self.afn.get_initial()})
-        initial_afd_node = Node()
-        self.initial_DFA_state = initial_afd_node
-        self.DFA_states[frozenset(initial_eclosure)] = initial_afd_node
-
-        def visit(afd_node_signature: Set[Node]):
-            for letter in self.afn.get_alphabet():
-                afn_states_reached_by_letter = NfaToDfa.get_letter_closure(initial_eclosure, letter)
-                eclosure = self.get_eclosure(afn_states_reached_by_letter)
-
-                if frozenset(eclosure) in self.DFA_states:
-                    destination_afd_node = self.DFA_states[frozenset(eclosure)]
-                    origin_afd_node = self.DFA_states[frozenset(afd_node_signature)]
-                    origin_afd_node.add_transition(letter, destination_afd_node)
-                else:
-                    self.DFA_states[frozenset(eclosure)] = Node()
-                    destination_afd_node = self.DFA_states[frozenset(eclosure)]
-                    origin_afd_node = self.DFA_states[frozenset(afd_node_signature)]
-                    origin_afd_node.add_transition(letter, destination_afd_node)
-                    visit(eclosure)
-
-        visit(initial_eclosure)
+    def __init__(self, nfa: Automata):
+        self.nfa = nfa
+        self.dfa = self._make_dfa(self._subset_construction())
 
     def get_dfa(self):
-        self.make_dfa()
-        final_afd_nodes = set()
+        return self.dfa
 
-        for sets, node in self.DFA_states.items():
-            if self.afn.get_final() in sets:
-                final_afd_nodes.add(node)
+    def _make_dfa(self, states: Dict[FrozenSet[Node], Dict[str, Set[Node]]]):
+        dfa_node_dict = {}
 
-        dfa = DeterministicFiniteAutomata(self.initial_DFA_state, final_afd_nodes)
+        for key, _ in states.items():
+            afd_node = Node()
+            dfa_node_dict[key] = afd_node
+
+        for key, value in states.items():
+            dfa_node = dfa_node_dict[key]
+            for symbol, nodes in value.items():
+                dfa_destination = dfa_node_dict[frozenset(nodes)]
+                dfa_node.add_transition(symbol, dfa_destination)
+
+        # Set the final states
+        final_states = set()
+        nfa_final = self.nfa.get_final()
+        for key, value in states.items():
+            for node in key:
+                if node is nfa_final:
+                    final_states.add(dfa_node_dict[key])
+
+        # Set the initial state
+        initial = self._e_closure(self.nfa.get_initial())
+        initial_state = dfa_node_dict[frozenset(initial)]
+
+        # nodes
+        nodes = set(dfa_node_dict.values())
+
+        dfa = DeterministicFiniteAutomata(initial_state, final_states)
+        dfa.add_alphabet(self.nfa.get_alphabet())
+        dfa.add_states(nodes)
+
         return dfa
 
-    @staticmethod
-    def _get_e_closure(initial_node: Node):
-        e_closure = set()
-        visited_nodes = set()
+    def _subset_construction(self):
+        unmarked = [self._e_closure(self.nfa.get_initial())]
+        marked = {}
+
+        while unmarked:
+            T = unmarked.pop()
+            marked[frozenset(T)] = {}
+
+            for a in self.nfa.get_alphabet():
+                U = self._e_closure_set(self._move(T, a))
+                if frozenset(U) not in marked and U not in unmarked:
+                    unmarked.append(U)
+                marked[frozenset(T)][a] = U
+
+        return marked
+
+    def _e_closure(self, s: Node) -> Set[Node]:
+        visited = set()
 
         def visit(node: Node):
-            if node in visited_nodes:
+            if node in visited:
                 return
-
-            visited_nodes.add(node)
+            visited.add(node)
             for transition in node.transitions[EPSILON]:
-                e_closure.add(transition)
                 visit(transition)
 
-        visit(initial_node)
-        e_closure.add(initial_node)
-        return e_closure
+        visit(s)
+        return visited
 
-    def get_eclosure(self, afn_nodes: Set[Node]):
-        e_closure = set()
-        for node in afn_nodes:
-            e_closure = e_closure.union(self._get_e_closure(node))
-        return e_closure
+    def _e_closure_set(self, T: Set[Node]) -> Set[Node]:
+        e_closure_set = set()
+        for node in T:
+            e_closure_set = e_closure_set.union(self._e_closure(node))
+        return e_closure_set
 
-    @staticmethod
-    def get_letter_closure(afn_nodes: Set[Node], letter: str):
-        letter_closure = set()
-        for node in afn_nodes:
-            if letter in node.transitions and letter != EPSILON:
-                letter_closure.add(node.transitions[letter])
+    def _move(self, T: Set[Node], a: str):
+        nodes_reached = set()
 
-        return letter_closure
+        for node in T:
+            if (a in node.transitions) and (a != EPSILON):
+                nodes_reached.add(node.transitions[a])
+
+        return nodes_reached
