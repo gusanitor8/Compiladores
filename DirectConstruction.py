@@ -22,8 +22,6 @@ class DirectConstruction:
         # Nuevo atributo para almacenar los estados de aceptación
         self.accepting_states = set()
 
-
-
     def _normalize_tree(self, tree: TreeNode):
         """
         This method normalizes the tree by adding a '.' at the root of the tree

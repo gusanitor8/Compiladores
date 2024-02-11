@@ -25,6 +25,22 @@ class Node:
         else:
             self.transitions[symbol] = node
 
+    def add_transitions(self, transition_dict):
+        """
+        This method adds a dictionary of transitions to the node
+        :param transition_dict: A dictionary of the form {symbol: Node}
+        :return: None
+        """
+        for key, value in transition_dict.items():
+            if key == EPSILON:
+                trans = set(self.transitions[key])
+                trans2 = set(value)
+                trans_def = trans.union(trans2)
+                self.transitions[key] = list(trans_def)
+                continue
+
+            self.add_transition(key, value)
+
     def _make_automata_image(self):
         """
         This method iterates through the whole automata and creates the graph
@@ -50,8 +66,10 @@ class Node:
                 if key == EPSILON:
                     for node_transition in node.transitions[EPSILON]:
                         self.graph.edge(str(node.id), str(node_transition.id), label=EPSILON)
+                        print(str(node.id) + " ----" + EPSILON + "---> " + str(node_transition.id))
                 else:
                     self.graph.edge(str(node.id), str(node.transitions[key].id), label=key)
+                    print(str(node.id) + " ----" + key + "---> " + str(node.transitions[key].id))
 
         visit(self)
 

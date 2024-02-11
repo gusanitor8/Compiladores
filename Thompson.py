@@ -28,7 +28,9 @@ class Thompson:
 
             elif char in self.binary_operators:
                 function = self.binary_operators[char]
-                automata = function(stack.pop(), stack.pop())
+                aut1 = stack.pop()
+                aut2 = stack.pop()
+                automata = function(aut2, aut1)
                 stack.append(automata)
 
             else:
@@ -128,7 +130,14 @@ class Thompson:
         :param automata2:
         :return: Automata
         """
-        automata1.get_final().add_transition(EPSILON, automata2.get_initial())
+        # automata1.get_final().add_transition(EPSILON, automata2.get_initial())
+        #
+        # return Automata(automata1.get_initial(), automata2.get_final())
+
+        t1 = automata1.get_final()
+        t2 = automata2.get_initial()
+
+        t1.add_transitions(t2.transitions)
 
         return Automata(automata1.get_initial(), automata2.get_final())
 
