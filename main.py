@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
     thompson = Thompson(regex[0])
     afn = thompson.make_afn()
+<<<<<<< Updated upstream
     #afn.print_automata()
 
     converter = NfaToDfa(afn)
@@ -30,3 +31,10 @@ if __name__ == "__main__":
 
     dfa.print_automata()
 
+=======
+    # afn.print_automata()
+
+    converter = NfaToDfa(afn)
+    dfa = converter.get_dfa()
+    # dfa.print_automata()
+>>>>>>> Stashed changes

@@ -1,5 +1,8 @@
 from ShuntingYard.tree_node import TreeNode
+from Node import Node
+from Automata import DeterministicFiniteAutomata
 import graphviz
+
 EPSILON = '𝜀'
 
 
@@ -21,6 +24,13 @@ class DirectConstruction:
 
         # Construir DFA después de inicializar todos los atributos necesarios
         self.dfa = self._construct_dfa()
+
+        self.print_dfa()
+        self.render_dfa_graph('dfa_graph')
+
+        self.dfa = self.get_dfa()
+        self.dfa.print_automata()
+
 
     def _normalize_tree(self, tree: TreeNode):
         """
@@ -225,14 +235,36 @@ class DirectConstruction:
 
         return self.states
 
-        # Método para imprimir el DFA construido (puedes expandirlo para tus necesidades)
+
+    def get_dfa(self):
+
+        node_dict = {frozenset(state): Node() for state in self.states}
+
+        for state in self.states:
+            new_node = node_dict[frozenset(state)]
+
+            for symbol, transition in self.states[state].items():
+                new_node.add_transition(symbol, node_dict[frozenset(transition)])
+
+        # Set the initial state
+        new_initial = node_dict[frozenset(self.first_positions[self.parse_tree])]
+
+        # Set the final states
+        final_states = set()
+        for state in self.accepting_states:
+            new_final = node_dict[frozenset(state)]
+            final_states.add(new_final)
+
+        dfa = DeterministicFiniteAutomata(new_initial, final_states)
+
+        return dfa
+
+    # Esto es extra para imprimir el dfa y generar la imagen con label originales
     def print_dfa(self):
         for state, transitions in self.states.items():
             print(f"Estado {state}:")
             for symbol, dest_state in transitions.items():
                 print(f"  Con {symbol} -> {dest_state}")
-        # Aquí podrías incluir lógica para identificar y mostrar estados de aceptación
-
 
 
     def generate_dot_representation(self):
@@ -255,4 +287,4 @@ class DirectConstruction:
 
     def render_dfa_graph(self, filename='dfa_graph'):
         dot = self.generate_dot_representation()
-        dot.render(filename, format='png', view=True)
+        dot.render('out/' + filename, format='png', cleanup=True)
