@@ -207,18 +207,21 @@ class DirectConstruction:
                     if node.value == symbol:
                         U.update(self.follow_positions.get(pos, set()))
                 U = frozenset(U)
-                # Si U no es un estado existente, añádelo
-                if U not in self.states:
+                # Si U no es un estado existente y no es un estado vacío, añádelo
+                if U and U not in self.states:
                     self.states[U] = {}
                     unmarked_states.append(U)
-                # Añadir transición
-                self.states[current_state][symbol] = U
+                # Añadir transición si U no es un estado vacío
+                if U:
+                    self.states[current_state][symbol] = U
 
             # Identificar estados de aceptación
-            for pos in current_state:
-                node = self.node_positions_inverse[pos]
-                if node.value == '#':
-                    self.accepting_states.add(current_state)
+            if any(self.node_positions_inverse[pos].value == '#' for pos in current_state):
+                self.accepting_states.add(current_state)
+
+            # Eliminar el estado vacío si está presente
+            if frozenset() in self.states:
+                del self.states[frozenset()]
 
         return self.states
 
