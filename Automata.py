@@ -12,7 +12,7 @@ class Automata:
         self._states = set()
         self._alphabet = set()
 
-    def print_automata(self):
+    def print_automata(self, file_id: str = ''):
         """
         This method prints the automata on the screen and saves it as a .png file
         :return: None
@@ -26,7 +26,7 @@ class Automata:
         graph.node('invisible_node', label='', width='0', height='0', style='invis')
         graph.edge('invisible_node', str(self._initial.id), label='')
 
-        graph.render('out/automata', view=True)
+        graph.render('out/automata' + file_id, view=True)
 
     def add_states(self, states: Set[Node]):
         """
@@ -80,7 +80,7 @@ class DeterministicFiniteAutomata:
         self._states = set()
         self._alphabet = set()
 
-    def print_automata(self):
+    def print_automata(self, file_id: str = ""):
         """
         This method prints the automata on the screen and saves it as a .png file
         :return: None
@@ -95,7 +95,7 @@ class DeterministicFiniteAutomata:
         graph.node('invisible_node', label='', width='0', height='0', style='invis')
         graph.edge('invisible_node', str(self._initial.id), label='')
 
-        graph.render('out/automata', view=True)
+        graph.render('out/automata' + file_id, view=True)
 
     def add_states(self, states: Set[Node]):
         """

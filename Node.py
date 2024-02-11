@@ -66,10 +66,8 @@ class Node:
                 if key == EPSILON:
                     for node_transition in node.transitions[EPSILON]:
                         self.graph.edge(str(node.id), str(node_transition.id), label=EPSILON)
-                        print(str(node.id) + " ----" + EPSILON + "---> " + str(node_transition.id))
                 else:
                     self.graph.edge(str(node.id), str(node.transitions[key].id), label=key)
-                    print(str(node.id) + " ----" + key + "---> " + str(node.transitions[key].id))
 
         visit(self)
 
