@@ -10,8 +10,7 @@ if __name__ == "__main__":
     nodes = tree.get_nodes()
     tree = tree.get_tree()
     afd = DirectConstruction(tree, nodes)
-
-
-
+    afd.print_dfa()
+    afd.render_dfa_graph('dfa_graph')
 
 

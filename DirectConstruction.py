@@ -1,7 +1,7 @@
 from ShuntingYard.tree_node import TreeNode
 import graphviz
-
 EPSILON = '𝜀'
+
 
 
 class DirectConstruction:
@@ -15,11 +15,13 @@ class DirectConstruction:
         self.first_positions = self._firstpos()
         self.last_positions = self._lastpos()
         self.follow_positions = self._followpos()
+        self.dfa_transitions = {}  # Tabla de transiciones del DFA
+        self.dfa_states = {}  # DFA como tal
+        self.dfa = self._construct_dfa()
 
-        self.DFA = self._dfa_builder()
+        # Nuevo atributo para almacenar los estados de aceptación
+        self.accepting_states = set()
 
-        self.transition_table = self._transition_table()
-        self.final_states = self._final_states()
 
 
     def _normalize_tree(self, tree: TreeNode):
@@ -154,113 +156,108 @@ class DirectConstruction:
         This method returns a dictionary of the form {TreeNode: set()} where the value is the set of follow positions
         :return: {TreeNode: set()}
         """
-        follow_positions = {item: set() for item in self.nodes}
+        follow_positions = {}
 
-        def visit(node: TreeNode, follow_positions):
+        def visit(node: TreeNode):
             if node.left:
-                visit(node.left, follow_positions)
+                visit(node.left)
             if node.right:
-                visit(node.right, follow_positions)
+                visit(node.right)
 
             if node.value == '.':  # If the node is a concatenation node
                 lastpos = self.last_positions[node.left]
                 firstpos = self.first_positions[node.right]
 
-                follow_positions[node] = lastpos.union(firstpos)
+                for pos in lastpos:
+                    follow_positions[pos] = follow_positions.get(pos, set()).union(firstpos)
 
             elif node.value == '*':  # If the node is a kleene star node
                 lastpos = self.last_positions[node]
                 firstpos = self.first_positions[node]
 
-                follow_positions[node] = lastpos.union(firstpos)
+                for pos in lastpos:
+                    follow_positions[pos] = follow_positions.get(pos, set()).union(firstpos)
 
-        visit(self.parse_tree, follow_positions)
+        visit(self.parse_tree)
         return follow_positions
 
+    def _construct_dfa(self):
+        # Calcular el alfabeto del DFA
+        alphabet = set()
+        for node in self.nodes:
+            if node.value not in ['.', '|', '*', '?', EPSILON]:
+                alphabet.add(node.value)
 
-    def _transition_table(self):
-        """
-        Constructs the transition table for the DFA.
-        :return: Transition table (nested dictionary)
-        """
-        self.initial_state = self.first_positions[self.parse_tree]
-        alphabet = set()  # Determine the alphabet
-        transition_table = {}
+        # Inicializar con el estado inicial: firstpos de la raíz
+        initial_state = frozenset(self.first_positions[self.parse_tree])
+        self.states = {initial_state: {}}
+        unmarked_states = [initial_state]  # Estados sin marcar (pendientes de procesar)
 
-        # Populate the transition table based on followpos and alphabet
-        for node, followpos_set in self.follow_positions.items():
-            state = self.node_positions[node]
-            transition_table[state] = {}
+        # Diccionario de posiciones y nodos
+        node_positions_inverse = {pos: node for node, pos in self.node_positions.items()}
+        self.node_positions_inverse = node_positions_inverse
 
+        # Mientras haya estados sin marcar
+        while unmarked_states:
+            current_state = unmarked_states.pop()  # Tomar un estado sin marcar y marcarlo
+            # Para cada símbolo del alfabeto
             for symbol in alphabet:
-                # Determine where this state transitions on this symbol
-                next_state = set()
-                for pos in followpos_set:
-                    if pos.value == symbol:
-                        next_state.add(self.node_positions[pos])
+                # Calcula el conjunto U de followpos para cada posición en current_state que corresponde al símbolo
+                U = set()
+                for pos in current_state:
+                    node = self.node_positions_inverse[pos]
+                    if node.value == symbol:
+                        U.update(self.follow_positions.get(pos, set()))
+                U = frozenset(U)
+                # Si U no es un estado existente, añádelo
+                if U not in self.states:
+                    self.states[U] = {}
+                    unmarked_states.append(U)
+                # Añadir transición
+                self.states[current_state][symbol] = U
 
-                    if next_state:
-                        transition_table[state][symbol] = next_state
+            # Manejar el caso de estado final (sin followpos)
+            if not any(pos in self.follow_positions for pos in current_state):
+                final_state = frozenset()  # Define un estado final vacío
+                # Agrega una transición con '#' hacia el estado final
+                self.states[current_state]['#'] = final_state
 
-            return transition_table
+        # Marcar los estados de aceptación después de completar la construcción del DFA
+        for state in self.states:
+            if frozenset() in state:
+                self.accepting_states.add(state)
 
+        return self.states
 
+        # Método para imprimir el DFA construido (puedes expandirlo para tus necesidades)
+    def print_dfa(self):
+        for state, transitions in self.states.items():
+            print(f"Estado {state}:")
+            for symbol, dest_state in transitions.items():
+                print(f"  Con {symbol} -> {dest_state}")
+        # Aquí podrías incluir lógica para identificar y mostrar estados de aceptación
 
-    # def _transition_table(self):
-    #     """
-    #     Constructs the transition table for the DFA.
-    #     :return: Transition table (nested dictionary)
-    #     """
-    #     initial_state = self.first_positions[self.parse_tree]
-    #     alphabet = set()  # Determine the alphabet
-    #     transition_table = {}
-    #
-    #     # Populate the transition table based on followpos and alphabet
-    #     for node, followpos_set in self.follow_positions.items():
-    #         state = self.node_positions[node]
-    #         transition_table[state] = {}
-    #
-    #         for symbol in alphabet:
-    #             # Determine where this state transitions on this symbol
-    #             next_state = set()
-    #             for pos in followpos_set:
-    #                 if pos.value == symbol:
-    #                     next_state.add(self.node_positions[pos])
-    #
-    #             if next_state:
-    #                 transition_table[state][symbol] = next_state
-    #
-    #     return transition_table
-    #
-    # def _final_states(self):
-    #     """
-    #     Determines the final states of the DFA.
-    #     :return: Set of final states
-    #     """
-    #     final_states = set()
-    #
-    #     # Find the states containing the position corresponding to '#'
-    #     for node, followpos_set in self.follow_positions.items():
-    #         state = self.node_positions[node]
-    #         for pos in followpos_set:
-    #             if pos.value == '#':
-    #                 final_states.add(state)
-    #
-    #     return final_states
+    def _is_accepting_state(self, state):
+        return frozenset() in state
 
-    # def draw_dfa(self):
-    #     """
-    #     Draws a graphical representation of the DFA using Graphviz.
-    #     """
-        # Generate Graphviz code to represent the DFA
-        # Use self.transition_table and self.final_states to create the graph
-        #
-        # Example: (you'll need to adapt this to your specific data structure)
-        # graph = Graph()
-        # for state, transitions in self.transition_table.items():
-        #     for symbol, next_states in transitions.items():
-        #         for next_state in next_states:
-        #             graph.edge(str(state), str(next_state), label=symbol)
-        # for final_state in self.final_states:
-        #     graph.node(str(final_state), shape='doublecircle')
-        # graph.render('dfa')
+    def generate_dot_representation(self):
+        dot = graphviz.Digraph()
+
+        # Agregar estados
+        for state, transitions in self.dfa.items():
+            state_label = ', '.join(map(str, state))
+            shape = 'doublecircle' if state in self.accepting_states else 'circle'
+            dot.node(state_label, shape=shape)
+
+        # Agregar transiciones
+        for state, transitions in self.dfa.items():
+            for symbol, next_state in transitions.items():
+                state_label = ', '.join(map(str, state))
+                next_state_label = ', '.join(map(str, next_state))
+                dot.edge(state_label, next_state_label, label=str(symbol))
+
+        return dot
+
+    def render_dfa_graph(self, filename='dfa_graph'):
+        dot = self.generate_dot_representation()
+        dot.render(filename, format='png', cleanup=True)
