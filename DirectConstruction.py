@@ -255,4 +255,4 @@ class DirectConstruction:
 
     def render_dfa_graph(self, filename='dfa_graph'):
         dot = self.generate_dot_representation()
-        dot.render(filename, format='png', cleanup=True)
+        dot.render(filename, format='png', view=True)
