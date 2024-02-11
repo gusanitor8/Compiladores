@@ -25,11 +25,7 @@ class DirectConstruction:
         # Construir DFA después de inicializar todos los atributos necesarios
         self.dfa = self._construct_dfa()
 
-        self.print_dfa()
-        self.render_dfa_graph('dfa_graph')
-
         self.dfa = self.get_dfa()
-        self.dfa.print_automata()
 
 
     def _normalize_tree(self, tree: TreeNode):

@@ -1,3 +1,4 @@
+(a|𝜀)b(a+)c?
 (a|b)*abb(a|b)*
 ((c|a)|b*)*
 (a|b)*abb

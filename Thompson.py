@@ -35,7 +35,8 @@ class Thompson:
 
             else:
                 stack.append(self._make_automata(char))
-                self.alphabet.add(char)
+                if char != EPSILON:
+                    self.alphabet.add(char)
 
         automata = stack.pop()
         automata.add_states(self._nodes)
