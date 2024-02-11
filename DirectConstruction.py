@@ -15,12 +15,12 @@ class DirectConstruction:
         self.first_positions = self._firstpos()
         self.last_positions = self._lastpos()
         self.follow_positions = self._followpos()
-        self.dfa_transitions = {}  # Tabla de transiciones del DFA
-        self.dfa_states = {}  # DFA como tal
-        self.dfa = self._construct_dfa()
 
-        # Nuevo atributo para almacenar los estados de aceptación
+        # Inicializar el conjunto de estados de aceptación
         self.accepting_states = set()
+
+        # Construir DFA después de inicializar todos los atributos necesarios
+        self.dfa = self._construct_dfa()
 
     def _normalize_tree(self, tree: TreeNode):
         """
@@ -214,16 +214,11 @@ class DirectConstruction:
                 # Añadir transición
                 self.states[current_state][symbol] = U
 
-            # Manejar el caso de estado final (sin followpos)
-            if not any(pos in self.follow_positions for pos in current_state):
-                final_state = frozenset()  # Define un estado final vacío
-                # Agrega una transición con '#' hacia el estado final
-                self.states[current_state]['#'] = final_state
-
-        # Marcar los estados de aceptación después de completar la construcción del DFA
-        for state in self.states:
-            if frozenset() in state:
-                self.accepting_states.add(state)
+            # Identificar estados de aceptación
+            for pos in current_state:
+                node = self.node_positions_inverse[pos]
+                if node.value == '#':
+                    self.accepting_states.add(current_state)
 
         return self.states
 
@@ -235,8 +230,7 @@ class DirectConstruction:
                 print(f"  Con {symbol} -> {dest_state}")
         # Aquí podrías incluir lógica para identificar y mostrar estados de aceptación
 
-    def _is_accepting_state(self, state):
-        return frozenset() in state
+
 
     def generate_dot_representation(self):
         dot = graphviz.Digraph()
