@@ -1,4 +1,4 @@
-from Node import Node
+from Automatas.Node import Node
 from typing import Set
 from graphviz import Digraph
 

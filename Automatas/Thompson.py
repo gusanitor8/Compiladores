@@ -1,6 +1,6 @@
 from typing import Set
-from Automata import Automata
-from Node import Node
+from Automatas.Automata import Automata
+from Automatas.Node import Node
 
 EPSILON = '𝜀'
 

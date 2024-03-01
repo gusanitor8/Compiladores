@@ -1,6 +1,6 @@
 from ShuntingYard.tree_node import TreeNode
-from Node import Node
-from Automata import DeterministicFiniteAutomata
+from Automatas.Node import Node
+from Automatas.Automata import DeterministicFiniteAutomata
 import graphviz
 
 EPSILON = '𝜀'

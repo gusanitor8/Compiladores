@@ -1,11 +1,11 @@
 from ShuntingYard.shunting_yard import ShuntingYard
 from ShuntingYard.parse_tree_builder import ParseTree
-from DirectConstruction import DirectConstruction
-from Automata import Automata, DeterministicFiniteAutomata
-from Simulator import DFASimulator, NFASimulator
-from Minimizer import Minimizer
-from Thompson import Thompson
-from NfaToDfa import NfaToDfa
+from Automatas.DirectConstruction import DirectConstruction
+from Automatas.Automata import Automata, DeterministicFiniteAutomata
+from Automatas.Simulator import DFASimulator, NFASimulator
+from Automatas.Minimizer import Minimizer
+from Automatas.Thompson import Thompson
+from Automatas.NfaToDfa import NfaToDfa
 
 if __name__ == "__main__":
 

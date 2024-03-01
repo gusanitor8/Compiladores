@@ -1,8 +1,6 @@
-import copy
-
-from Automata import DeterministicFiniteAutomata
+from Automatas.Automata import DeterministicFiniteAutomata
 from typing import Set, Dict, FrozenSet
-from Node import Node, EPSILON
+from Automatas.Node import Node, EPSILON
 
 
 class Minimizer:
@@ -72,7 +70,7 @@ class Minimizer:
         final_states = set()
         old_final_states = self.dfa.get_final()
         for group, new_node in partitions.items():
-            if old_final_states.issubset(group):
+            if group.issubset(old_final_states):
                 final_states.add(new_node)
 
         return DeterministicFiniteAutomata(initial_state, final_states)
