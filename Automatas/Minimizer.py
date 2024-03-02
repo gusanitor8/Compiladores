@@ -8,36 +8,66 @@ class Minimizer:
         self.dfa = dfa
         self.partitions = self._minimize()
 
-
     def _minimize(self):
-        new_partition = [self.dfa.get_final(), self.dfa.get_states() - self.dfa.get_final()]
         initial_partition = []
+        curr_partition = [self.dfa.get_final(), self.dfa.get_states() - self.dfa.get_final()]
+        alphabet = self.dfa.get_alphabet()
+        group_table = self.init_group_table(curr_partition)
+        calculation_table = self._init_calculation_table(group_table, alphabet)
 
-        while new_partition != initial_partition:
-            initial_partition = new_partition
-            new_partition = self._get_next_partition(new_partition)
+        while initial_partition != curr_partition:
+            group_table = self._update_group_table(group_table, calculation_table)
+            initial_partition = curr_partition
+            curr_partition = self._make_new_partition(curr_partition, group_table)
 
-        return new_partition
+        return curr_partition
 
-    def _get_next_partition(self, partition: [Set[Node]]):
-        new_partition = []
 
-        for index, group in enumerate(partition):
-            group_a = set()
-            group_b = set()
-
+    def init_group_table(self, initial_partition):
+        group_table = {}
+        for index, group in enumerate(initial_partition):
             for node in group:
-                for a in self.dfa.get_alphabet():
-                    if node.transitions[a] not in group:
-                        group_a.add(node)
-                        break
+                group_table[node] = index
+        return group_table
+
+    def _init_calculation_table(self, group_table, alphabet):
+        calculation_table = {}
+        for node in group_table.keys():
+            code = []
+            for char in alphabet:
+                try:
+                    dest = node.transitions[char]
+                    group_no = group_table[dest]
+                    code.append(group_no)
+                except KeyError:
+                    print("WARNING: No hay transición para el símbolo", char, "en el nodo", node)
+                    code.append(-1)
+
+            calculation_table[node] = tuple(code)
+
+        return calculation_table
+
+    def _update_group_table(self, group_table, calculation_table):
+        code_index: dict = {item: i for i, item in enumerate(set(calculation_table.values()))}
+
+        for node in group_table.keys():
+            group_table[node] = code_index[calculation_table[node]]
+
+        return group_table
+
+    def _make_new_partition(self, partition, group_table):
+        new_partition = []
+        for group in partition:
+            code_group = {}
+            for node in group:
+                if group_table[node] in code_group:
+                    code_group[group_table[node]].add(node)
                 else:
-                    group_b.add(node)
+                    code_group[group_table[node]] = {node}
 
-            new_partition.append(group_a)
-            new_partition.append(group_b)
+            for new_group in code_group.values():
+                new_partition.append(new_group)
 
-        new_partition = [item for item in new_partition if item]
         return new_partition
 
     def _make_node_group_dictionary(self, partition: [Set[Node]]):
