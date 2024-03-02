@@ -41,7 +41,7 @@ class Minimizer:
                     code.append(group_no)
                 except KeyError:
                     print("WARNING: No hay transición para el símbolo", char, "en el nodo", node)
-                    code.append(-1)
+                    code.append(0) # 0 es el estado de rechazo por lo que no esta en la particion de los finales
 
             calculation_table[node] = tuple(code)
 
