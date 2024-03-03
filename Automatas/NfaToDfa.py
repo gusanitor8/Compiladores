@@ -14,9 +14,12 @@ class NfaToDfa:
     def _make_dfa(self, states: Dict[FrozenSet[Node], Dict[str, Set[Node]]]):
         dfa_node_dict = {}
 
+        del states[frozenset({})]
+
         for key, _ in states.items():
             afd_node = Node()
             dfa_node_dict[key] = afd_node
+
 
         for key, value in states.items():
             dfa_node = dfa_node_dict[key]

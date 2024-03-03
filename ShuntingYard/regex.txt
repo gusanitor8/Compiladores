@@ -3,7 +3,6 @@ a?b?c?
 ((c|a)|b*)*
 (a|𝜀)bc?
 (aa*)|c*|a+
-(a|b)abb(a|b)
 (a|bc)*
 a???
 (a+)?
