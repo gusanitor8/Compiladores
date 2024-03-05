@@ -1,8 +1,7 @@
 from Automatas.Node import Node
 from typing import Set
 from graphviz import Digraph
-
-EPSILON = '𝜀'
+from Automatas.constants import EPSILON
 
 
 class Automata:

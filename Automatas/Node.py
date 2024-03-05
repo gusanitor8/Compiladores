@@ -1,6 +1,5 @@
 from graphviz import Digraph
-
-EPSILON = '𝜀'
+from Automatas.constants import EPSILON
 
 
 class Node:

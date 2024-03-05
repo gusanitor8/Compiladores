@@ -1,8 +1,7 @@
 from typing import Set
 from Automatas.Automata import Automata
 from Automatas.Node import Node
-
-EPSILON = '𝜀'
+from Automatas.constants import EPSILON
 
 
 class Thompson:

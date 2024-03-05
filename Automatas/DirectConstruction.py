@@ -2,9 +2,7 @@ from ShuntingYard.tree_node import TreeNode
 from Automatas.Node import Node
 from Automatas.Automata import DeterministicFiniteAutomata
 import graphviz
-
-EPSILON = '𝜀'
-
+from Automatas.constants import EPSILON
 
 
 class DirectConstruction:

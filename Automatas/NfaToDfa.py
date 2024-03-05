@@ -20,7 +20,6 @@ class NfaToDfa:
             afd_node = Node()
             dfa_node_dict[key] = afd_node
 
-
         for key, value in states.items():
             dfa_node = dfa_node_dict[key]
             for symbol, nodes in value.items():

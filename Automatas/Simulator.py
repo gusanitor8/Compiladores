@@ -1,6 +1,7 @@
 from Automatas.Automata import Automata, DeterministicFiniteAutomata
-from Automatas.Node import Node, EPSILON
+from Automatas.Node import Node
 from typing import Set
+from Automatas.constants import EPSILON
 
 
 class DFASimulator:
