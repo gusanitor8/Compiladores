@@ -121,6 +121,8 @@ class DirectConstruction:
                         first_positions[node] = first_positions[node.left]
                 elif node.value in ['?', '*']:
                     first_positions[node] = first_positions[node.left]
+                elif node.value == '+':  # Si el nodo es un nodo de repetición uno o más veces
+                    first_positions[node] = first_positions[node.left]
 
         visit(self.parse_tree)
         return first_positions
@@ -150,6 +152,8 @@ class DirectConstruction:
                     else:
                         last_positions[node] = last_positions[node.right]
                 elif node.value in ['?', '*']:
+                    last_positions[node] = last_positions[node.left]
+                elif node.value == '+':  # Si el nodo es un nodo de repetición uno o más veces
                     last_positions[node] = last_positions[node.left]
 
         visit(self.parse_tree)
@@ -225,12 +229,11 @@ class DirectConstruction:
             if any(self.node_positions_inverse[pos].value == '#' for pos in current_state):
                 self.accepting_states.add(current_state)
 
-            # Eliminar el estado vacío si está presente
-            if frozenset() in self.states:
-                del self.states[frozenset()]
+        # Eliminar el estado vacío si está presente
+        if frozenset() in self.states:
+            del self.states[frozenset()]
 
         return self.states
-
 
     def get_dfa(self):
 

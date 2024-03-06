@@ -3,8 +3,8 @@ class ShuntingYard:
 
     # File reader
     @staticmethod
-    def _readfile(filename):
-        with open(filename, 'r') as f:
+    def _readfile(filename, encoding='utf-8'):
+        with open(filename, 'r', encoding=encoding) as f:
             data = f.read().splitlines()
         return data
 
@@ -94,8 +94,8 @@ class ShuntingYard:
 
         return postfix
 
-    def getPostfixRegex(self):
-        expressions = self._readfile('./ShuntingYard/regex.txt')
+    def getPostfixRegex(self, encoding='utf-8'):
+        expressions = self._readfile('./ShuntingYard/regex.txt', encoding)
 
         postfixArr = []
         for regex in expressions:
