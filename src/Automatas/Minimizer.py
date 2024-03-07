@@ -1,7 +1,7 @@
-from Automatas.Automata import DeterministicFiniteAutomata
+from src.Automatas.Automata import DeterministicFiniteAutomata
 from typing import Set, Dict, FrozenSet
-from Automatas.Node import Node
-from Automatas.constants import EPSILON
+from src.Automatas.Node import Node
+from src.constants import EPSILON
 
 
 class Minimizer:

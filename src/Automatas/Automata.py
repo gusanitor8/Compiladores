@@ -1,7 +1,6 @@
-from Automatas.Node import Node
+from src.Automatas.Node import Node
 from typing import Set
 from graphviz import Digraph
-from Automatas.constants import EPSILON
 
 
 class Automata:

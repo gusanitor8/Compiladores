@@ -1,8 +1,8 @@
-from ShuntingYard.tree_node import TreeNode
-from Automatas.Node import Node
-from Automatas.Automata import DeterministicFiniteAutomata
+from src.ShuntingYard.tree_node import TreeNode
+from src.Automatas.Node import Node
+from src.Automatas.Automata import DeterministicFiniteAutomata
 import graphviz
-from Automatas.constants import EPSILON
+from src.constants import EPSILON
 
 
 class DirectConstruction:

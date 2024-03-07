@@ -1,5 +1,5 @@
-from Automatas.Automata import DeterministicFiniteAutomata, Automata
-from Automatas.Node import Node, EPSILON
+from src.Automatas.Automata import DeterministicFiniteAutomata, Automata
+from src.Automatas.Node import Node, EPSILON
 from typing import Set, Dict, FrozenSet
 
 

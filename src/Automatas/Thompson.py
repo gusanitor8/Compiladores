@@ -1,7 +1,7 @@
 from typing import Set
-from Automatas.Automata import Automata
-from Automatas.Node import Node
-from Automatas.constants import EPSILON
+from src.Automatas.Automata import Automata
+from src.Automatas.Node import Node
+from src.constants import EPSILON, ESCAPE
 
 
 class Thompson:
@@ -18,14 +18,19 @@ class Thompson:
         :return: Automata
         """
         stack: [Automata] = []
+        is_scaped = False
 
         for char in self.postfix_regex:
-            if char in self.unary_operators:
+            if char == ESCAPE and not is_scaped:
+                is_scaped = True
+                continue
+
+            if char in self.unary_operators and not is_scaped:
                 function = self.unary_operators[char]
                 automata = function(stack.pop())
                 stack.append(automata)
 
-            elif char in self.binary_operators:
+            elif char in self.binary_operators and not is_scaped:
                 function = self.binary_operators[char]
                 aut1 = stack.pop()
                 aut2 = stack.pop()
@@ -33,6 +38,9 @@ class Thompson:
                 stack.append(automata)
 
             else:
+                if is_scaped:
+                    is_scaped = False
+
                 stack.append(self._make_automata(char))
                 if char != EPSILON:
                     self.alphabet.add(char)

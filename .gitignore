@@ -3,4 +3,4 @@
 __pycache__/
 *.pyc
 
-ShuntingYard/__pycache__/
+src/ShuntingYard/__pycache__/

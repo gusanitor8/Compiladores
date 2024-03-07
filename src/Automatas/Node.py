@@ -1,5 +1,5 @@
 from graphviz import Digraph
-from Automatas.constants import EPSILON
+from src.constants import EPSILON
 
 
 class Node:

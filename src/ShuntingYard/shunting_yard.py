@@ -1,18 +1,37 @@
-class ShuntingYard:
-    # TODO: Add constructor which has filename as parameter
+from src.constants import ESCAPE
 
-    # File reader
+
+class ShuntingYard:
+    def __init__(self, filename='./src/ShuntingYard/regex.txt'):
+        self.filename = filename
+
+    def get_postfix_regex(self):
+        expressions = self._readfile(self.filename)
+
+        postfix_arr = []
+        for regex in expressions:
+            formated_regex = self._format_reg_ex(regex)
+            postfix = self._infix_to_postfix(formated_regex)
+            postfix_arr.append(postfix)
+
+        return postfix_arr
+
+    @staticmethod
+    def convert_to_postfix(regex: str):
+        formated_regex = ShuntingYard._format_reg_ex(regex)
+        return ShuntingYard._infix_to_postfix(formated_regex)
+
     @staticmethod
     def _readfile(filename):
         with open(filename, 'r') as f:
             data = f.read().splitlines()
         return data
 
-    # Regex Formater
     @staticmethod
     def _format_reg_ex(regex):
         allOperators = ['|', '?', '+', '*', '^']
         binaryOperators = ['^', '|']
+        special_chars = [ESCAPE]
         res = ""
 
         for i in range(len(regex)):
@@ -23,7 +42,7 @@ class ShuntingYard:
 
                 res += c1
 
-                if c1 != '(' and c2 != ')' and c2 not in allOperators and c1 not in binaryOperators:
+                if c1 != '(' and c2 != ')' and c2 not in allOperators and c1 not in special_chars and c1 not in binaryOperators:
                     res += '.'
 
         res += regex[-1]
@@ -47,7 +66,8 @@ class ShuntingYard:
         return precedences.get(c, 0)
 
     # Converts infix to postfix
-    def _infix_to_postfix(self, formatedRegex):
+    @staticmethod
+    def _infix_to_postfix(formatedRegex):
         operators = ['|', '?', '+', '*', '^', '.', '(', ')']
         stack = []
         postfix = ""
@@ -59,8 +79,8 @@ class ShuntingYard:
                 isScapedChar = False
                 continue
 
-            if char == '\\':
-                stack.append(char)
+            if char == ESCAPE:
+                postfix += char
                 isScapedChar = True
                 continue
 
@@ -80,7 +100,7 @@ class ShuntingYard:
                 if peekedChar == None:
                     stack.append(char)
 
-                elif self._get_precedence(peekedChar) >= self._get_precedence(char) and (peekedChar != '('):
+                elif ShuntingYard._get_precedence(peekedChar) >= ShuntingYard._get_precedence(char) and (peekedChar != '('):
                     postfix += stack.pop()
                     stack.append(char)
 
@@ -93,14 +113,3 @@ class ShuntingYard:
             postfix += stack.pop()
 
         return postfix
-
-    def getPostfixRegex(self):
-        expressions = self._readfile('./ShuntingYard/regex.txt')
-
-        postfixArr = []
-        for regex in expressions:
-            formatedRegex = self._format_reg_ex(regex)
-            postfix = self._infix_to_postfix(formatedRegex)
-            postfixArr.append(postfix)
-
-        return postfixArr
