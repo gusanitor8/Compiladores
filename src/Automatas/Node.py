@@ -77,3 +77,6 @@ class Node:
         """
         self._make_automata_image()
         return self.graph
+
+    def __str__(self):
+        return "Node: " + str(self.id)

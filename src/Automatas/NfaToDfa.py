@@ -14,7 +14,7 @@ class NfaToDfa:
     def _make_dfa(self, states: Dict[FrozenSet[Node], Dict[str, Set[Node]]]):
         dfa_node_dict = {}
 
-        del states[frozenset({})]
+        # del states[frozenset({})]
 
         for key, _ in states.items():
             afd_node = Node()
@@ -25,8 +25,8 @@ class NfaToDfa:
             for symbol, nodes in value.items():
                 # TODO: sospecho que aqui se genera el estado de rechazo
                 # es aquel cuya llave es un conjunto vacio, y transiciones son al conjunto vacio
-                if not nodes:
-                    continue
+                # if not nodes:
+                #     continue
                 dfa_destination = dfa_node_dict[frozenset(nodes)]
                 dfa_node.add_transition(symbol, dfa_destination)
 

@@ -20,6 +20,7 @@ class Minimizer:
             group_table = self._update_group_table(group_table, calculation_table)
             initial_partition = curr_partition
             curr_partition = self._make_new_partition(curr_partition, group_table)
+            calculation_table = self._init_calculation_table(group_table, alphabet)
 
         return curr_partition
 
@@ -107,4 +108,9 @@ class Minimizer:
             if group.issubset(old_final_states):
                 final_states.add(new_node)
 
-        return DeterministicFiniteAutomata(initial_state, final_states)
+        nodes = set(partitions.values())
+        dfa = DeterministicFiniteAutomata(initial_state, final_states)
+        dfa.add_alphabet(self.dfa.get_alphabet())
+        dfa.add_states(nodes)
+
+        return dfa

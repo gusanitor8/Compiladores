@@ -11,6 +11,7 @@ class Regex:
         self.dfa: Automata = self._build_dfa(regex)
 
     def search(self, string) -> bool:
+
         pass
 
     def match_finder(self, string: str):
@@ -31,6 +32,7 @@ class Regex:
 
         while current_state not in final_states:
             char = get_next_char()
+            current_state = current_state.transitions[char]
             if char is None:
                 return False
 
@@ -46,5 +48,6 @@ class Regex:
         dfa.print_automata("_dfa")
         minimizer = Minimizer(dfa)
         minimized_dfa = minimizer.make_minimized_dfa()
+        minimized_dfa.remove_dead_states()
         minimized_dfa.print_automata("_minimized")
         return minimized_dfa
