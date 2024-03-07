@@ -78,3 +78,11 @@ class Node:
         """
         self._make_automata_image()
         return self.graph
+
+    def __str__(self):
+        string = "Node: " + str(self.id)
+
+        # for transition in self.transitions:
+        #     string += transition + " -> " + str(self.transitions[transition]) + " "
+
+        return string

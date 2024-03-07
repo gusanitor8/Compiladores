@@ -19,6 +19,7 @@ class Minimizer:
             group_table = self._update_group_table(group_table, calculation_table)
             initial_partition = curr_partition
             curr_partition = self._make_new_partition(curr_partition, group_table)
+            calculation_table = self._init_calculation_table(group_table, alphabet)
 
         return curr_partition
 
