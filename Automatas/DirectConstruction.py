@@ -5,8 +5,6 @@ import graphviz
 
 EPSILON = '𝜀'
 
-
-
 class DirectConstruction:
     def __init__(self, parse_tree: TreeNode, nodes: set):
         self.nodes = nodes
@@ -24,9 +22,7 @@ class DirectConstruction:
 
         # Construir DFA después de inicializar todos los atributos necesarios
         self.dfa = self._construct_dfa()
-
         self.dfa = self.get_dfa()
-
 
     def _normalize_tree(self, tree: TreeNode):
         """
@@ -89,7 +85,7 @@ class DirectConstruction:
                     nullable[node] = nullable[node.left] or nullable[node.right]
                 elif node.value == '.':
                     nullable[node] = nullable[node.left] and nullable[node.right]
-                elif node.value in ['?', '*']:
+                elif node.value in ['?', '*', '+']:
                     nullable[node] = True
 
         visit(self.parse_tree)
@@ -119,9 +115,7 @@ class DirectConstruction:
                         first_positions[node] = first_positions[node.left].union(first_positions[node.right])
                     else:
                         first_positions[node] = first_positions[node.left]
-                elif node.value in ['?', '*']:
-                    first_positions[node] = first_positions[node.left]
-                elif node.value == '+':  # Si el nodo es un nodo de repetición uno o más veces
+                elif node.value in ['?', '*', '+']:
                     first_positions[node] = first_positions[node.left]
 
         visit(self.parse_tree)
@@ -151,9 +145,7 @@ class DirectConstruction:
                         last_positions[node] = last_positions[node.left].union(last_positions[node.right])
                     else:
                         last_positions[node] = last_positions[node.right]
-                elif node.value in ['?', '*']:
-                    last_positions[node] = last_positions[node.left]
-                elif node.value == '+':  # Si el nodo es un nodo de repetición uno o más veces
+                elif node.value in ['?', '*', '+']:
                     last_positions[node] = last_positions[node.left]
 
         visit(self.parse_tree)
@@ -179,7 +171,7 @@ class DirectConstruction:
                 for pos in lastpos:
                     follow_positions[pos] = follow_positions.get(pos, set()).union(firstpos)
 
-            elif node.value == '*':  # If the node is a kleene star node
+            elif node.value in ['*', '+']:  # If the node is a kleene star or one or more node
                 lastpos = self.last_positions[node]
                 firstpos = self.first_positions[node]
 
@@ -229,6 +221,15 @@ class DirectConstruction:
             if any(self.node_positions_inverse[pos].value == '#' for pos in current_state):
                 self.accepting_states.add(current_state)
 
+            # Manejo especial para el operador '+'
+            if self.parse_tree.value == '+':
+                # Obtiene el estado final y agrega una transición desde él al estado inicial si no existe
+                final_state = self.follow_positions[self.node_positions[self.parse_tree.left]]
+                if final_state not in self.states:
+                    self.states[final_state] = {}
+                    unmarked_states.append(final_state)
+                self.states[final_state]['#'] = initial_state
+
         # Eliminar el estado vacío si está presente
         if frozenset() in self.states:
             del self.states[frozenset()]
@@ -236,7 +237,6 @@ class DirectConstruction:
         return self.states
 
     def get_dfa(self):
-
         node_dict = {frozenset(state): Node() for state in self.states}
 
         for state in self.states:
@@ -264,7 +264,6 @@ class DirectConstruction:
             print(f"Estado {state}:")
             for symbol, dest_state in transitions.items():
                 print(f"  Con {symbol} -> {dest_state}")
-
 
     def generate_dot_representation(self):
         dot = graphviz.Digraph()
