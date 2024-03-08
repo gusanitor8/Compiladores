@@ -11,8 +11,15 @@ class Regex:
         self.dfa: Automata = self._build_dfa(regex)
 
     def search(self, string) -> bool:
+        flag = self.match_finder(string)
 
-        pass
+        while flag is False and string != "":
+            string = string[1:]
+            flag = self.match_finder(string)
+
+        return flag
+
+
 
     def match_finder(self, string: str):
         index = 0
@@ -32,7 +39,12 @@ class Regex:
 
         while current_state not in final_states:
             char = get_next_char()
-            current_state = current_state.transitions[char]
+
+            if char in current_state.transitions:
+                current_state = current_state.transitions[char]
+            else:
+                return False
+
             if char is None:
                 return False
 
@@ -45,9 +57,9 @@ class Regex:
         nfa = thompson.make_afn()
         converter = NfaToDfa(nfa)
         dfa = converter.get_dfa()
-        dfa.print_automata("_dfa")
+        # dfa.print_automata("_dfa")
         minimizer = Minimizer(dfa)
         minimized_dfa = minimizer.make_minimized_dfa()
         minimized_dfa.remove_dead_states()
-        minimized_dfa.print_automata("_minimized")
+        # minimized_dfa.print_automata("_minimized")
         return minimized_dfa
