@@ -47,7 +47,7 @@ class Regex:
         for i in range(0, len(ranges), 2):
             start, end = ranges[i], ranges[i + 1]
             # Use a list comprehension to create the escaped characters explicitly
-            escaped_chars = ['\\' + chr(c) if chr(c) in REGEX_SYMBOLS else chr(c) for c in
+            escaped_chars = ["'" + chr(c) + "'" if chr(c) in REGEX_SYMBOLS else chr(c) for c in
                              range(ord(start), ord(end) + 1)]
             char_set.extend(escaped_chars)
 
@@ -142,7 +142,7 @@ class Regex:
         postfix_regex = ShuntingYard.convert_to_postfix(regex)
         thompson = Thompson(postfix_regex)
         nfa = thompson.make_afn()
-        nfa.print_automata()
+        # nfa.print_automata()
         converter = NfaToDfa(nfa)
         dfa = converter.get_dfa()
         # dfa.remove_dead_states()
@@ -150,5 +150,5 @@ class Regex:
         minimizer = Minimizer(dfa)
         minimized_dfa = minimizer.make_minimized_dfa()
         minimized_dfa.remove_dead_states()
-        # minimized_dfa.print_automata("_minimized")
+        minimized_dfa.print_automata("_minimized")
         return minimized_dfa

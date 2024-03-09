@@ -32,10 +32,32 @@ class ShuntingYard:
         allOperators = ['|', '?', '+', '*', '^']
         binaryOperators = ['^', '|']
         special_chars = [ESCAPE]
+        len_regex = len(regex)
         res = ""
+        i = 0
+        is_scaped = False
 
-        for i in range(len(regex)):
+        while i < len_regex - 1:
             c1 = regex[i]
+
+            if c1 == "'":
+                if i + 2 < len(regex):
+                    if regex[i + 2] == "'":
+                        is_scaped = True
+                        res += c1
+                        res += regex[i + 1]
+                        res += regex[i + 2]
+
+
+                        if i + 3 < len(regex):
+                            c1 = regex[i + 3]
+
+                            if c1 != ')' and c1 not in allOperators:
+                                res += '.'
+
+                        i += 3
+                        continue
+            is_scaped = False
 
             if i + 1 < len(regex):
                 c2 = regex[i + 1]
@@ -45,7 +67,10 @@ class ShuntingYard:
                 if c1 != '(' and c2 != ')' and c2 not in allOperators and c1 not in special_chars and c1 not in binaryOperators:
                     res += '.'
 
-        res += regex[-1]
+            i += 1
+
+        if not is_scaped:
+            res += regex[-1]
 
         return res
 
@@ -69,20 +94,23 @@ class ShuntingYard:
     @staticmethod
     def _infix_to_postfix(formatedRegex):
         operators = ['|', '?', '+', '*', '^', '.', '(', ')']
+        regex_len = len(formatedRegex)
         stack = []
         postfix = ""
-        isScapedChar = False
+        is_scaped = False
 
-        for char in formatedRegex:
-            if isScapedChar:
-                postfix += char
-                isScapedChar = False
-                continue
+        i = 0
+        while i < len(formatedRegex):
+            char = formatedRegex[i]
 
-            if char == ESCAPE:
-                postfix += char
-                isScapedChar = True
-                continue
+            if char == "'":
+                if i + 2 < regex_len:
+                    if formatedRegex[i + 2] == "'":
+                        postfix += char
+                        postfix += formatedRegex[i + 1]
+                        postfix += formatedRegex[i + 2]
+                        i += 3
+                        continue
 
             if char == '(':
                 stack.append(char)
@@ -95,6 +123,7 @@ class ShuntingYard:
                         postfix += stack.pop()
                         peekedChar = stack[-1] if stack else None
                     stack.pop()
+                    i += 1
                     continue
 
                 if peekedChar == None:
@@ -108,6 +137,8 @@ class ShuntingYard:
                     stack.append(char)
             else:
                 postfix += char
+
+            i += 1
 
         while len(stack) > 0:
             postfix += stack.pop()

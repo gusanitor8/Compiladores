@@ -18,19 +18,28 @@ class Thompson:
         :return: Automata
         """
         stack: [Automata] = []
-        is_scaped = False
+        len_regex = len(self.postfix_regex)
 
-        for char in self.postfix_regex:
-            if char == ESCAPE and not is_scaped:
-                is_scaped = True
-                continue
+        i = 0
+        while i < len_regex:
+            char = self.postfix_regex[i]
 
-            if char in self.unary_operators and not is_scaped:
+            if char == "'":
+                if i + 2 < len_regex:
+                    if self.postfix_regex[i + 2] == "'":
+                        stack.append(self._make_automata(self.postfix_regex[i + 1]))
+                        if char != EPSILON:
+                            self.alphabet.add(self.postfix_regex[i + 1])
+                        i += 3
+                        continue
+
+
+            if char in self.unary_operators:
                 function = self.unary_operators[char]
                 automata = function(stack.pop())
                 stack.append(automata)
 
-            elif char in self.binary_operators and not is_scaped:
+            elif char in self.binary_operators:
                 function = self.binary_operators[char]
                 aut1 = stack.pop()
                 aut2 = stack.pop()
@@ -38,12 +47,10 @@ class Thompson:
                 stack.append(automata)
 
             else:
-                if is_scaped:
-                    is_scaped = False
-
                 stack.append(self._make_automata(char))
                 if char != EPSILON:
                     self.alphabet.add(char)
+            i += 1
 
         automata = stack.pop()
         automata.add_states(self._nodes)

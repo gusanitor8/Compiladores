@@ -12,10 +12,10 @@ def test_construction():
     postfix_regex = regex_arr[0]
     thompson = Thompson(postfix_regex)
     nfa = thompson.make_afn()
-    nfa.print_automata()
+    nfa.print_automata("_nfa")
     converter = NfaToDfa(nfa)
     dfa = converter.get_dfa()
-    # dfa.print_automata("_dfa")
+    dfa.print_automata("_dfa")
     minimizer = Minimizer(dfa)
     minimized_dfa = minimizer.make_minimized_dfa()
     minimized_dfa.remove_dead_states()
