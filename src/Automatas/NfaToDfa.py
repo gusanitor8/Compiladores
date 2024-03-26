@@ -14,8 +14,6 @@ class NfaToDfa:
     def _make_dfa(self, states: Dict[FrozenSet[Node], Dict[str, Set[Node]]]):
         dfa_node_dict = {}
 
-        # del states[frozenset({})]
-
         for key, _ in states.items():
             afd_node = Node()
             dfa_node_dict[key] = afd_node
@@ -23,10 +21,7 @@ class NfaToDfa:
         for key, value in states.items():
             dfa_node = dfa_node_dict[key]
             for symbol, nodes in value.items():
-                # TODO: sospecho que aqui se genera el estado de rechazo
-                # es aquel cuya llave es un conjunto vacio, y transiciones son al conjunto vacio
-                # if not nodes:
-                #     continue
+                # dead states are generated here with the empty set
                 dfa_destination = dfa_node_dict[frozenset(nodes)]
                 dfa_node.add_transition(symbol, dfa_destination)
 
@@ -51,7 +46,7 @@ class NfaToDfa:
 
         return dfa
 
-    def _subset_construction(self):
+    def _subset_construction(self) -> Dict:
         unmarked = [self._e_closure(self.nfa.get_initial())]
         marked = {}
 
@@ -66,6 +61,39 @@ class NfaToDfa:
                 marked[frozenset(T)][a] = U
 
         return marked
+
+    def _encode_node_set(self, node_set):
+        """
+        This method encodes a set of nodes into a tuple for debugging
+        :param node_set:
+        :return:
+        """
+        encoded = []
+        for node in node_set:
+            encoded.append(node.id)
+
+        encoded.sort()
+        return tuple(encoded)
+
+    def _print_marked(self, marked):
+        """
+        This method prints the marked dictionary for debugging purposes
+        :param marked:
+        :return:
+        """
+        for key, value in marked.items():
+
+            print('[', end='')
+            for setA in key:
+                print(setA, end=" ")
+            print(']: ')
+
+            for char, nodes in value.items():
+                print("\t", char, end=" -> ")
+                print(" [", end="")
+                for node in nodes:
+                    print(node, end=", ")
+                print("]")
 
     def _e_closure(self, s: Node) -> Set[Node]:
         visited = set()

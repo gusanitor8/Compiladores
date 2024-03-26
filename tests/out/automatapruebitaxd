@@ -1,0 +1,12 @@
+// Finite Automaton
+digraph {
+	graph [rankdir=LR]
+	24 -> 18 [label=o]
+	23 -> 24 [label=l]
+	22 -> 23 [label=l]
+	21 -> 22 [label=e]
+	19 -> 21 [label=h]
+	18 [shape=doublecircle]
+	invisible_node [label="" height=0 style=invis width=0]
+	invisible_node -> 19 [label=""]
+}

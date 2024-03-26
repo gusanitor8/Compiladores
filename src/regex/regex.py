@@ -11,14 +11,38 @@ class Regex:
         self.regex = regex
         self.dfa: Automata = self._build_dfa(regex)
 
-    def search(self, string) -> bool:
-        flag = self.match_finder(string)
+    def get_dfa(self):
+        return self.dfa
 
-        while flag is False and string != "":
+    def shortest_search(self, string) -> tuple:
+        flag = self.shortest_match(string)
+        offset = 0
+
+        while flag is None and string != "":
             string = string[1:]
-            flag = self.match_finder(string)
+            flag = self.shortest_match(string)
+            offset += 1
 
-        return flag
+        if flag is not None:
+            return (flag[0] + offset, flag[1] + offset)
+
+    def longest_search(self, string) -> tuple:
+        """
+        This method returns the range of the longest match for a given regex
+        :param string: String to be matched
+        :return: The range of the longest match or None if no match is found
+        """
+
+        flag = self.longest_match(string)
+        offset = 0
+
+        while flag is None and string != "":
+            string = string[1:]
+            flag = self.longest_match(string)
+            offset += 1
+
+        if flag is not None:
+            return tuple((flag[0] + offset, flag[1] + offset))
 
     def _sanitize_regex(self, string: str):
         any = '(' + self.generate_char_set_with_separator('(', '|') + ')'
@@ -77,12 +101,12 @@ class Regex:
         final_states = self.dfa.get_final()
 
         while idx is not None and flag:
+            if current_state in final_states:
+                acceptance_strings_idx.append(idx)
+
             if char not in current_state.transitions:
                 flag = False
                 continue
-
-            if current_state in final_states:
-                acceptance_strings_idx.append(idx)
 
             current_state = current_state.transitions[char]
             idx = next_char_idx()
@@ -90,6 +114,7 @@ class Regex:
 
         if acceptance_strings_idx:
             max_difference_idx = max(acceptance_strings_idx)
+            # TODO: change the second value to exclusive, since inclusive could lead to errors for empty strings
             return tuple((0, max_difference_idx))
         else:
             return None
@@ -101,13 +126,13 @@ class Regex:
         :param string: The string to be substituted
         :return: The new string
         """
-        pass
+        raise NotImplementedError
 
-    def match_finder(self, string: str):
+    def shortest_match(self, string: str):
         """
-
+        This function takes a string and returns the range of the first match of the regex in the string
         :param string:
-        :return:
+        :return: a tuple (start, end) start is inclusive end is exclusive, None if no match is found
         """
         index = 0
         final_string = ""
@@ -130,25 +155,22 @@ class Regex:
             if char in current_state.transitions:
                 current_state = current_state.transitions[char]
             else:
-                return False
+                return None
 
             if char is None:
-                return False
+                return None
 
-        return final_string
+        return (0, index)
 
     @staticmethod
     def _build_dfa(regex: str):
         postfix_regex = ShuntingYard.convert_to_postfix(regex)
         thompson = Thompson(postfix_regex)
         nfa = thompson.make_afn()
-        # nfa.print_automata()
         converter = NfaToDfa(nfa)
         dfa = converter.get_dfa()
-        # dfa.remove_dead_states()
-        # dfa.print_automata("_dfa")
         minimizer = Minimizer(dfa)
         minimized_dfa = minimizer.make_minimized_dfa()
         minimized_dfa.remove_dead_states()
-        minimized_dfa.print_automata("_minimized")
+        # minimized_dfa.print_automata("_minimized")
         return minimized_dfa

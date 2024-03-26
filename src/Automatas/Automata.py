@@ -1,14 +1,62 @@
 from src.Automatas.Node import Node
-from typing import Set
+from typing import Set, Union
 from graphviz import Digraph
 from src.constants import EPSILON
 
+
 class Automata:
-    def __init__(self, initial: Node, final: Node):
+    def __init__(self, initial: Node, final: Union[Node, Set[Node]]):
         self._initial = initial
         self._final = final
         self._states = set()
         self._alphabet = set()
+
+    @staticmethod
+    def e_closure(s: Node) -> Set[Node]:
+        """
+        This method returns the epsilon closure of a node
+        :param s:
+        :return:
+        """
+        visited = set()
+
+        def visit(node: Node):
+            if node in visited:
+                return
+            visited.add(node)
+            for transition in node.transitions[EPSILON]:
+                visit(transition)
+
+        visit(s)
+        return visited
+
+    @staticmethod
+    def move(T: Set[Node], a: str):
+        """
+        This method returns the set of nodes that can be reached from a set of nodes with a symbol
+        :param T: Set of nodes
+        :param a: char symbol
+        :return: Set of nodes reached with a given symbol
+        """
+        nodes_reached = set()
+
+        for node in T:
+            if (a in node.transitions) and (a != EPSILON):
+                nodes_reached.add(node.transitions[a])
+
+        return nodes_reached
+
+    @staticmethod
+    def e_closure_set(T: Set[Node]) -> Set[Node]:
+        """
+        This method returns the epsilon closure of a set of nodes
+        :param T:
+        :return:
+        """
+        e_closure_set = set()
+        for node in T:
+            e_closure_set = e_closure_set.union(Automata.e_closure(node))
+        return e_closure_set
 
     def print_automata(self, file_id: str = ''):
         """
@@ -111,7 +159,6 @@ class DeterministicFiniteAutomata:
 
         self._states = self._states - dead_states
 
-
     def _identify_dead_states(self):
         """
         This method identifies the dead states of the automata
@@ -128,13 +175,16 @@ class DeterministicFiniteAutomata:
                 continue
 
             # if the state has only transitions to itself then its a dead state
+            is_dead = True
             for char in alphabet:
                 if state.transitions[char] is not state:
+                    is_dead = False
                     break
+
+            if is_dead:
                 dead_states.add(state)
 
         return dead_states
-
 
     def add_states(self, states: Set[Node]):
         """

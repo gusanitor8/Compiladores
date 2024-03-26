@@ -2,6 +2,8 @@ from graphviz import Digraph
 from src.constants import EPSILON
 
 
+DOT_CHARACTERS = {">": "&gt;", "<": "&lt;", "\\": "bs", "\"": "quot", "\n" : "nl"}
+
 class Node:
     _id_counter = 1
 
@@ -65,6 +67,9 @@ class Node:
                 if key == EPSILON:
                     for node_transition in node.transitions[EPSILON]:
                         self.graph.edge(str(node.id), str(node_transition.id), label=EPSILON)
+                elif key in DOT_CHARACTERS: # revisamos si hay caracteres que no son aceptados por DOT (graphviz)
+                    escaped = DOT_CHARACTERS[key]
+                    self.graph.edge(str(node.id), str(node.transitions[key].id), label=escaped)
                 else:
                     self.graph.edge(str(node.id), str(node.transitions[key].id), label=key)
 

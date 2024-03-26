@@ -31,7 +31,8 @@ class ShuntingYard:
     def _format_reg_ex(regex):
         allOperators = ['|', '?', '+', '*', '^']
         binaryOperators = ['^', '|']
-        special_chars = [ESCAPE]
+        special_chars = []
+
         len_regex = len(regex)
         res = ""
         i = 0
@@ -40,6 +41,7 @@ class ShuntingYard:
         while i < len_regex - 1:
             c1 = regex[i]
 
+            # We check for a scaped character between single quotes
             if c1 == "'":
                 if i + 2 < len(regex):
                     if regex[i + 2] == "'":
@@ -59,6 +61,7 @@ class ShuntingYard:
                         continue
             is_scaped = False
 
+            # Once we know there is not a scaped character we can continue with the normal process
             if i + 1 < len(regex):
                 c2 = regex[i + 1]
 
@@ -69,7 +72,7 @@ class ShuntingYard:
 
             i += 1
 
-        if not is_scaped:
+        if regex[-1] != "'":
             res += regex[-1]
 
         return res

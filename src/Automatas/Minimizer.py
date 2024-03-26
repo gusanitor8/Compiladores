@@ -24,7 +24,6 @@ class Minimizer:
 
         return curr_partition
 
-
     def init_group_table(self, initial_partition):
         group_table = {}
         for index, group in enumerate(initial_partition):
@@ -46,7 +45,7 @@ class Minimizer:
                     if len(set(group_table.values())) == 1:
                         code.append(1)
                     else:
-                        code.append(0) # 0 es el estado de rechazo por lo que no esta en la particion de los finales
+                        code.append(0)  # 0 es el estado de rechazo por lo que no esta en la particion de los finales
 
             calculation_table[node] = tuple(code)
 
@@ -96,7 +95,7 @@ class Minimizer:
 
                     new_node_destination = partitions[frozenset(node_group_dict[transition])]
                     new_node.add_transition(symbol, new_node_destination)
-                break
+                break  # TODO: puede que haya un bug aqui, el break se sale hasta el primer ciclo for y no hasta el segundo
 
         # initial state
         initial_state = partitions[node_group_dict[self.dfa.get_initial()]]
