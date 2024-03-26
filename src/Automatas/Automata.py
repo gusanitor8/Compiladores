@@ -66,7 +66,11 @@ class Automata:
         graph: Digraph = self._initial.render_automata()
 
         # final
-        graph.node(str(self._final.id), shape='doublecircle')
+        if isinstance(self._final, set):
+            for final_node in self._final:
+                graph.node(str(final_node.id), shape='doublecircle')
+        else:
+            graph.node(str(self._final.id), shape='doublecircle')
 
         # initial
         graph.node('invisible_node', label='', width='0', height='0', style='invis')

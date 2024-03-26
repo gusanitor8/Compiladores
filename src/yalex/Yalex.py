@@ -6,11 +6,22 @@ from src.constants import EPSILON
 
 class Yalex:
     def __init__(self, filename="./utils/yalex_files/slr-2.yal"):
+        self.final_precedence = {}
+        self.actions = {}
+
         self.yal = self._read_yal(filename)
         self.string = str(self.yal)
         self.nfa: Automata = self._build_nfa()
-        self.final_precedence = {}
-        self.actions = {}
+
+        # We store data from the yal file in this dictionary
+        self.document = {
+            "comments": [],
+            "variables": {},
+            "entrypoint": {
+                "args": [],
+                "code": {}
+            }
+        }
 
     @staticmethod
     def _read_yal(filename):
@@ -30,23 +41,26 @@ class Yalex:
         :return: nfa: Automata
         """
         any = '(' + Regex.generate_char_set_with_separator('!', '~') + '| )'
+        any_nospace = '(' + Regex.generate_char_set_with_separator('!', '~') + ')'
         az = "(" + Regex.generate_char_set_with_separator('a', 'z') + ")"
         azaz09 = "(" + Regex.generate_char_set_with_separator('a', 'z', 'A', 'Z', '0', '9') + ")"
 
-        comment_dfa = Regex("'(''*'" + any + "'*'')'").get_dfa()
+        comment_dfa = Regex("'(''*'" + any + "*'*'')'").get_dfa()
         variable_dfa = Regex("let +" + az + azaz09 + "* *= *" + any + "+\n").get_dfa()
         entrypoint_dfa = Regex("rule +" + az + azaz09 + "* += *\n").get_dfa()  # TODO: Add support for args
+        rules_dfa = Regex(" *'|'? *" + any_nospace + "+ *{" + any + "*} *").get_dfa()
 
         # We add the initial node of the nfa and connect it to the initial nodes of the other dfas
         initial_node = Node()
         initial_node.add_transition(EPSILON, variable_dfa.get_initial())
         initial_node.add_transition(EPSILON, entrypoint_dfa.get_initial())
         initial_node.add_transition(EPSILON, comment_dfa.get_initial())
+        initial_node.add_transition(EPSILON, rules_dfa.get_initial())
 
         # We obtain the parameters for the new nfa
-        final_nodes = comment_dfa.get_final() + variable_dfa.get_final() + entrypoint_dfa.get_final()
-        alphabet = comment_dfa.get_alphabet() + variable_dfa.get_alphabet() + entrypoint_dfa.get_alphabet()
-        nodes = comment_dfa.get_nodes() + variable_dfa.get_nodes() + entrypoint_dfa.get_nodes()
+        final_nodes = comment_dfa.get_final() | variable_dfa.get_final() | entrypoint_dfa.get_final() | rules_dfa.get_final()
+        alphabet = comment_dfa.get_alphabet() | variable_dfa.get_alphabet() | entrypoint_dfa.get_alphabet() | rules_dfa.get_alphabet()
+        nodes = comment_dfa.get_states() | variable_dfa.get_states() | entrypoint_dfa.get_states() | rules_dfa.get_states()
 
         # We associate each of the final nodes with an action
         for final in comment_dfa.get_final():
@@ -58,30 +72,52 @@ class Yalex:
         for final in entrypoint_dfa.get_final():
             self.actions[final] = self._entrypoint_found
 
+        for final in rules_dfa.get_final():
+            self.actions[final] = self._rule_found
+
         # We create the nfa
         nfa = Automata(initial_node, final_nodes)
         nfa.add_alphabet(alphabet)
         nfa.add_states(nodes)
 
         # Set precedence for each final node
-        final_nodes_list = [entrypoint_dfa, variable_dfa, comment_dfa.get_nodes()]
+        final_nodes_list = [entrypoint_dfa.get_final(), variable_dfa.get_final(),rules_dfa.get_final(), comment_dfa.get_final()]
         for index, set_ in enumerate(final_nodes_list):
             for node in set_:
                 self.final_precedence[node] = index
 
         return nfa
 
-    def _comment_found(self):
+    def _comment_found(self, range):
+        string = self.string[range["start"]:range["end"]-1]
+        self.document["comments"].append(string)
+
+        print("comment found: ", string)
+
+
+    def _variable_found(self, range):
+        string = self.string[range["start"]:range["end"]-1]
+        string = string.strip()
+        variable, value = string.split("=")
+        variable = variable[:4]
+        value = value.strip()
+
+        self.document["variables"][variable] = value
+
+        print("variable found: ", string)
+
+    def _rule_found(self, range):
+        string = self.string[range["start"]:range["end"]-1]
+        print("rule found: ", string)
         pass
 
-    def _variable_found(self):
+    def _entrypoint_found(self, range):
+        string = self.string[range["start"]:range["end"]-1]
+        print("entrypoint found: ", string)
         pass
 
-    def _entrypoint_found(self):
-        pass
-
-    def _cut_string(self):
-        self.string = self.string[1:]
+    def _cut_string(self, cut=1):
+        self.string = self.string[cut:]
 
     def _longest_match(self):
         longest_match_index = 0
@@ -96,7 +132,7 @@ class Yalex:
                 longest_match_state = current.intersection(self.nfa.get_final())
 
             current = Automata.move(current, char)
-            current = Automata.e_closure(current)
+            current = Automata.e_closure_set(current)
 
             if not current:
                 break
@@ -115,4 +151,14 @@ class Yalex:
 
         return response
 
+    def document_iterator(self):
+        while self.string:
+            match = self._longest_match()
+            if match:
+                function = self.actions[match["node"]]
+                function(match)
+                self._cut_string(match["end"]-1)
+            else:
+                self._cut_string(1)
 
+        return self.document

@@ -1,9 +1,0 @@
-// Finite Automaton
-digraph {
-	graph [rankdir=LR]
-	396 -> 393 [label="'"]
-	395 -> 396 [label=")"]
-	393 [shape=doublecircle]
-	invisible_node [label="" height=0 style=invis width=0]
-	invisible_node -> 395 [label=""]
-}

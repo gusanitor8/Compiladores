@@ -1,4 +1,5 @@
 from src.regex.regex import Regex
+from src.constants import EPSILON
 
 
 def test_generate_char_set_with_separator():
@@ -44,6 +45,13 @@ def test__build_dfa():
     string = "(*hola q tal*)"
     result = regex_comm.longest_match(string)
     assert result == (0, 14)
+
+    rules_dfa = Regex(" *('|'|" + EPSILON + ") *" + az + azAZ09 + "* *= *{" + any + "*} *")
+    string = "ws        { return WHITESPACE } "
+    match = rules_dfa.longest_match(string)
+    new_string = string[match[1] - 1:]
+    assert match == (0, 30)
+
 
 def test_shortest_match():
     test_regex = "hello"
