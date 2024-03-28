@@ -118,3 +118,11 @@ def test_longest_search():
     regex = Regex(test_regex)
 
     assert regex.longest_search(" ") == (0, 0)
+
+    any = '(' + Regex.generate_char_set_with_separator('!', '~') + '| )'
+    regex = charset_regex2 = "[\"" + any + "+\"]"
+    charset_regex2 = Regex(charset_regex2)
+    string = "[\"\s\\t\\n\"]"
+
+    assert charset_regex2.longest_search(string) == (0, 10)
+

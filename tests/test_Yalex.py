@@ -16,3 +16,7 @@ def test_document_iterator():
     yalex = Yalex("./../utils/yalex_files/slr-2.yal")
     yalex.document_iterator()
     assert True
+
+def test__regex_iterator():
+    yalex = Yalex("./../utils/yalex_files/slr-2.yal")
+    assert True
