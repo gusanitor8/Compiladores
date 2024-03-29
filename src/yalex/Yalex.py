@@ -29,6 +29,9 @@ class Yalex:
         self._variable_iterator()
         print(self.document)
 
+    def get_document(self):
+        return self.document
+
     @staticmethod
     def _read_yal(filename):
         """
@@ -281,7 +284,8 @@ class Yalex:
         string = string[2:-2]
         chars = []
 
-        for index in range(len(string)):
+        index = 0
+        while index < len(string):
             if string[index] == "'":
                 if (index + 2) < len(string):
                     if string[index + 2] == "'":
@@ -289,6 +293,7 @@ class Yalex:
                         index += 3
                         continue
             chars.append(string[index])
+            index += 1
 
         res = ""
         for char in chars:

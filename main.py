@@ -1,21 +1,35 @@
-from src.regex.regex import Regex
+from src.yalex.Yalex import Yalex
+from src.ShuntingYard.shunting_yard import ShuntingYard
+from src.ShuntingYard.parse_tree_builder import ParseTree
 
 
 def run():
-    regex = Regex.generate_char_set_with_separator('a', 'z', 'A', 'Z', '0', '9')
-    azAZ09_ = "( |" + regex + ")"
-    azAZ09 = "(" + regex + ")"
-    any = '(' + Regex.generate_char_set_with_separator('!', '~') + ')'
-    az = "("  + Regex.generate_char_set_with_separator('a', 'z') + ")"
+    yalex = Yalex("utils/yalex_files/slr-2.yal")
+    document = yalex.get_document()
+    regexes = []
+
+    for identifier in document["entrypoint"]["code"].keys():
+        if identifier in document["variables"]:
+            regex = document["variables"][identifier]
+            regexes.append(regex)
+
+        else:
+            regex = identifier
+            regexes.append(regex)
+
+    super_regex = ""
+    for postfix in regexes:
+        super_regex += "(" + postfix + ")|"
+
+    super_regex = super_regex[:-1]
+    postfix = ShuntingYard.convert_to_postfix(super_regex)
+    ParseTree(postfix, display_tree=True, suffix="_super_tree")
 
 
-    comment_regex = "'(''*'" + azAZ09_ + "*'*'')'"
-    variable_regex = "( *let +" + az + azAZ09 + "* *= *"+ any + "+\n*)+"
 
 
-    regex_var = Regex(variable_regex)
-    regex = Regex(comment_regex)
-    print()
+
+
 
 
 if __name__ == "__main__":

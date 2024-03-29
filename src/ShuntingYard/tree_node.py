@@ -30,17 +30,17 @@ class TreeNode:
             self.right.make_tree()
 
     @staticmethod
-    def _render_tree():
+    def _render_tree(suffix=""):
         """
         This method renders the tree on the screen
         :return:
         """
-        TreeNode.tree_graph.render('out/tree', view=True)
+        TreeNode.tree_graph.render('out/tree'+suffix, view=True)
 
-    def print_tree(self):
+    def print_tree(self, suffix=""):
         """
         This method displays the tree
         :return:
         """
         self.make_tree()
-        self._render_tree()
+        self._render_tree(suffix)

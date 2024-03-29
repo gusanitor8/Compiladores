@@ -8,7 +8,7 @@ let letter = ['A'-'Z''a'-'z']
 let digit = ['0'-'9']
 let digits = digit+
 let id = letter(letter|digit)*
-let number = digits(.digits)?('E'['+''-']?digits)?
+let number = digits('.'digits)?('E'["'+''-'"]?digits)?
 
 rule tokens = 
     ws        { return WHITESPACE }               (* Cambie por una acción válida, que devuelva el token *)

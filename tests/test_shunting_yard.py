@@ -36,6 +36,11 @@ def test__format_reg_ex():
     res = sy._format_reg_ex(regex)
     assert res == expected
 
+    regex = "(0|1|2|3|4|5|6|7|8|9)+('.'(0|1|2|3|4|5|6|7|8|9)+)?('E'('+'|'-')?(0|1|2|3|4|5|6|7|8|9)+)?"
+    expected = "(0|1|2|3|4|5|6|7|8|9)+.('.'.(0|1|2|3|4|5|6|7|8|9)+)?.('E'.('+'|'-')?.(0|1|2|3|4|5|6|7|8|9)+)?"
+
+    res = sy._format_reg_ex(regex)
+    assert res == expected
 
 
 def test__infix_to_postfix():
