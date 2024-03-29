@@ -25,6 +25,8 @@ class Yalex:
 
         self.document_iterator()
         self._regex_iterator()
+        self.variable_replacement_nfa()
+        self._variable_iterator()
         print(self.document)
 
     @staticmethod
@@ -133,12 +135,33 @@ class Yalex:
     def variable_replacement_nfa(self):
         keys = self.document["variables"].keys()
         initial = Node()
+        key_nfas = []
 
         for key in keys:
-            key_node = Regex(key).get_dfa()
-            initial.add_transition(EPSILON, key_node.get_initial())
-            # TODO: finish implementation
+            key_nfa = Regex(key).get_dfa()
+            initial.add_transition(EPSILON, key_nfa.get_initial())
+            key_nfas.append(key_nfa)
 
+        final_nodes = set()
+        for key_nfa in key_nfas:
+            final_nodes |= key_nfa.get_final()
+
+        alphabet = set()
+        for key_nfa in key_nfas:
+            alphabet |= key_nfa.get_alphabet()
+
+        nodes = set()
+        for key_nfa in key_nfas:
+            nodes |= key_nfa.get_states()
+
+        for nfa_final in final_nodes:
+            self.actions[nfa_final] = self._identifier_found
+
+        for final in final_nodes:
+            self.final_precedence[final] = 0
+
+        nfa = Automata(initial, final_nodes)
+        return nfa
 
     def _longest_match(self):
         longest_match_index = 0
@@ -149,7 +172,8 @@ class Yalex:
         # We search for the longest match in the string
         for index, char in enumerate(self.string):
             if any(state in self.nfa.get_final() for state in current):
-                longest_match_index = index + 1  # +1 because is exclusive in the tuple
+                # TODO: puede que sumar uno no sea lo mejor porque de todas formas se agrega en la iteracion siguiente
+                longest_match_index = index  # +1 because is exclusive in the tuple
                 longest_match_state = current.intersection(self.nfa.get_final())
 
             current = Automata.move(current, char)
@@ -190,7 +214,6 @@ class Yalex:
             self.string = regex
             self.longest_matches_preprocessing("variables", variable)
 
-
     def longest_matches_preprocessing(self, section: str, identifier: str):
         string_copy = str(self.string)
         self.document[section][identifier] = ""
@@ -206,6 +229,7 @@ class Yalex:
                 self.document[section][identifier] += self.string[0]
                 self._cut_string(1)
 
+
     def document_iterator(self):
         while self.string:
             match = self._longest_match()
@@ -217,6 +241,21 @@ class Yalex:
                 self._cut_string(1)
 
         return self.document
+
+    def _variable_iterator(self):
+        self.nfa = self.variable_replacement_nfa()
+
+        for variable, regex in self.document["variables"].items():
+            regex = self._replace_special_chars(regex)
+            self.string = regex
+            self.longest_matches_preprocessing("variables", variable)
+
+    # ~~~~~~~~~~ Action associated methods below ~~~~~~~~~~
+    def _identifier_found(self, range_, section, identifier):
+        string = self.string[range_["start"]:range_["end"]]
+        print("identifier found: ", string)
+
+        self.document[section][identifier] += self.document[section][string]
 
     def _charset_range(self, range_, section, identifier):
         string = self.string[range_["start"]:range_["end"]]
@@ -260,7 +299,7 @@ class Yalex:
         self.document[section][identifier] += res
 
     def _comment_found(self, range):
-        string = self.string[range["start"]:range["end"] - 1]
+        string = self.string[range["start"]:range["end"]]
         self.document["comments"].append(string)
 
         print("comment found: ", string)
@@ -278,7 +317,7 @@ class Yalex:
         print("variable found: ", string)
 
     def _rule_found(self, range):
-        string = self.string[range["start"]:range["end"] - 1]
+        string = self.string[range["start"]:range["end"]]
         print("rule found: ", string)
 
         any_nospace = '(' + Regex.generate_char_set_with_separator('!', '~') + ')'

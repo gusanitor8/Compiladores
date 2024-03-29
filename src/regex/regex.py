@@ -169,9 +169,8 @@ class Regex:
         nfa = thompson.make_afn()
         converter = NfaToDfa(nfa)
         dfa = converter.get_dfa()
-        # TODO: activar minimizacion
         minimizer = Minimizer(dfa)
         minimized_dfa = minimizer.make_minimized_dfa()
-        dfa.remove_dead_states()
+        minimized_dfa.remove_dead_states()
         # minimized_dfa.print_automata("_minimized")
         return minimized_dfa
