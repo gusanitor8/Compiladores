@@ -15,12 +15,14 @@ class Yalex:
 
         # We store data from the yal file in this dictionary
         self.document = {
+            "header": "",
             "comments": [],
             "variables": {},
             "entrypoint": {
                 "args": [],
                 "code": {}
             }
+            "trailer": ""
         }
 
         self.document_iterator()
@@ -204,10 +206,33 @@ class Yalex:
 
         return response
 
-    def _replace_special_chars(self, string):
+    @staticmethod
+    def _replace_special_chars(string):
+        # We replace _ for ['!'-'~'] since it represents any character
+        new_string = ""
+        str_idx = 0
+        while str_idx < len(string):
+            if string[str_idx] == "'":
+                if str_idx + 2 < len(string):
+                    if string[str_idx + 2] == "'":
+                        new_string += "'" + string[str_idx + 1] + "'"
+                        str_idx += 3
+                        continue
+
+            elif string[str_idx] == "_":
+                new_string += "['!'-'~']"
+                str_idx += 1
+                continue
+
+            else:
+                new_string += string[str_idx]
+                str_idx += 1
+
+
+        # We look for characters like \n \t and \s
         for special in SPECIAL_SYMBOLS:
-            string = string.replace(special[0], special[1])
-        return string
+            new_string = new_string.replace(special[0], special[1])
+        return new_string
 
     def _regex_iterator(self):
         self.nfa = self._build_preprocess_nfa()

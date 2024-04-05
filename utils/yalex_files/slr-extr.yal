@@ -1,0 +1,37 @@
+(* Lexer para Gramática No. 3 - Variación expresiones aritméticas simples *)
+
+(* Introducir cualquier header aqui *)
+
+{
+print("Este es un intendo de header")
+variableheader = "hola desde el header"
+}
+
+
+let delimitador = [' ''\t''\n']
+let espacioEnBlanco = delimitador+
+let digito = ['0'-'9']
+let numero = '-'?digito+ (*comentario que estorba*)
+let hex = "'0x'"digito+
+let letra = ['a'-'z''A'-'Z']
+let identificador = letra(letra|numero)+
+let fn = ['f'-'12']
+
+rule tokens =
+    espacioEnBlanco    { print("WS") }
+  | if                { print("IF") }
+  | else                { print("ELSE") }
+  | then                { print("THEN") }
+  | numero            { print("NUMBER") }
+  | '=='                { print("EQUALS") }
+  | '!='                { print("NOT_EQUALS") }
+  | '>'                { print("GREATER") }
+  | '<'                { print("LESS") }
+  | '>='                { print("GREATER_EQUALS") }
+  | '<='                { print("LESS_EQUALS") }
+  | identificador    { print("ID") }
+
+{
+print("Este es un intendo de trailer")
+print("variableheader = ", variableheader)
+}
