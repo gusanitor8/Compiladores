@@ -42,7 +42,10 @@ class Thompson:
             elif char in self.binary_operators:
                 function = self.binary_operators[char]
                 aut1 = stack.pop()
-                aut2 = stack.pop()
+                try:
+                    aut2 = stack.pop()
+                except IndexError:
+                    print("Invalid regex")
                 automata = function(aut2, aut1)
                 stack.append(automata)
 

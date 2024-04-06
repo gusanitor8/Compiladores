@@ -8,11 +8,12 @@ variableheader = "hola desde el header"
 }
 
 %%
-let delimitador = [' ''\t''\n']
+
+let delimitador = ["\s\t\n"]
 let espacioEnBlanco = delimitador+
 let digito = ['0'-'9']
 let numero = '-'?digito+ (*comentario que estorba*)
-let hex = "'0x'"digito+
+let hex = 0xdigito+
 let letra = ['a'-'z''A'-'Z']
 let identificador = letra(letra|numero)+
 
@@ -22,12 +23,12 @@ rule tokens =
   | else                { print("ELSE") }
   | then                { print("THEN") }
   | numero            { print("NUMBER") }
-  | '=='                { print("EQUALS") }
-  | '!='                { print("NOT_EQUALS") }
+  | '=''='                { print("EQUALS") }
+  | '!''='                { print("NOT_EQUALS") }
   | '>'                { print("GREATER") }
   | '<'                { print("LESS") }
-  | '>='                { print("GREATER_EQUALS") }
-  | '<='                { print("LESS_EQUALS") }
+  | '>''='                { print("GREATER_EQUALS") }
+  | '<''='                { print("LESS_EQUALS") }
   | identificador    { print("ID") }
 
 %%

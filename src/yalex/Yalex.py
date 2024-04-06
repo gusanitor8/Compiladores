@@ -33,6 +33,9 @@ class Yalex:
         self._variable_iterator()
         print(self.document)
 
+    def get_document(self):
+        return self.document
+
     def part_manager(self, string: str):
         chunks = self._separate_header_and_trailer(string)
         header = chunks[0]
@@ -120,7 +123,7 @@ class Yalex:
         azaz09 = "(" + Regex.generate_char_set_with_separator('a', 'z', 'A', 'Z', '0', '9') + ")"
 
         comment_dfa = Regex("'(''*'" + any + "*'*'')'").get_dfa()
-        variable_dfa = Regex("let +" + az + azaz09 + "* *= *" + any + "+\n").get_dfa()
+        variable_dfa = Regex("let +" + az + azaz09 + "* *= *" + any_nospace + "+ *").get_dfa()
         entrypoint_dfa = Regex("rule +" + az + azaz09 + "* += *\n").get_dfa()  # TODO: Add support for args
         rules_dfa = Regex(" *'|'? *" + any_nospace + "+ +{" + any + "*} *").get_dfa()
 
@@ -281,6 +284,7 @@ class Yalex:
                         new_string += "'" + string[str_idx + 1] + "'"
                         str_idx += 3
                         continue
+                    
 
             if string[str_idx] == "_":
                 new_string += "['!'-'~']"
@@ -403,7 +407,7 @@ class Yalex:
         print("comment found: ", string)
 
     def _variable_found(self, range):
-        string = self.string[range["start"]:range["end"] - 1]
+        string = self.string[range["start"]:range["end"]]
         string = string.strip()
         variable, value = string.split("=")
         variable = variable[4:]

@@ -9,7 +9,7 @@ from src.constants import REGEX_SYMBOLS
 class Regex:
     def __init__(self, regex: str):
         self.regex = regex
-        self.dfa: Automata = self._build_dfa(regex)
+        self.dfa: Automata = self.build_dfa(regex)
 
     def get_dfa(self):
         return self.dfa
@@ -163,7 +163,7 @@ class Regex:
         return (0, index)
 
     @staticmethod
-    def _build_dfa(regex: str):
+    def build_dfa(regex: str):
         postfix_regex = ShuntingYard.convert_to_postfix(regex)
         thompson = Thompson(postfix_regex)
         nfa = thompson.make_afn()
