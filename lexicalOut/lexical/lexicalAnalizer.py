@@ -96,8 +96,8 @@ def unpickle():
 if __name__ == "__main__":	
 	print("Este es un intendo de header")
 	variableheader = "hola desde el header"
-	
+
 	run()	
-	print("Este es un intendo de header")
-	variableheader = "hola desde el header"
+	print("Este es un intendo de trailer")
+	print("variableheader = ", variableheader)
 	

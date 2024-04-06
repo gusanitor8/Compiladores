@@ -118,7 +118,7 @@ class LexicalAnalizerGenerator:
             file.write('if __name__ == "__main__":')
             file.write(self.document["header-trailer"][0])
             file.write('\trun()')
-            file.write(self.document["header-trailer"][0])
+            file.write(self.document["header-trailer"][1])
 
 
 
