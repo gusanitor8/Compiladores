@@ -8,7 +8,6 @@ variableheader = "hola desde el header"
 }
 
 %%
-
 let delimitador = [' ''\t''\n']
 let espacioEnBlanco = delimitador+
 let digito = ['0'-'9']

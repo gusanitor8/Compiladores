@@ -343,6 +343,7 @@ class Yalex:
     def _header_or_trailer_found(self, range_):
         string = self.string[range_["start"]:range_["end"]]
         print("header or trailer found: ", string)
+        string = string[1:-1]
 
         self.document["header-trailer"].append(string)
 
@@ -429,6 +430,7 @@ class Yalex:
 
         regex = string[range[1]:]
         regex = regex.strip()
+        regex = regex[1:-1]
 
         self.document["entrypoint"]["code"][identifier] = regex
 
