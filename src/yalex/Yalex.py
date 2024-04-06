@@ -6,30 +6,93 @@ from src.constants import EPSILON, SPECIAL_SYMBOLS
 
 class Yalex:
     def __init__(self, filename="./utils/yalex_files/slr-2.yal"):
-        self.final_precedence = {}
-        self.actions = {}
-
-        self.yal = self._read_yal(filename)
-        self.string = str(self.yal)
-        self.nfa: Automata = self._build_nfa()
-
         # We store data from the yal file in this dictionary
         self.document = {
-            "header": "",
+            "header-trailer": [],
             "comments": [],
             "variables": {},
             "entrypoint": {
                 "args": [],
                 "code": {}
             }
-            "trailer": ""
         }
+
+        self.final_precedence = {}
+        self.actions = {}
+        self.header = []
+        self.trailer = []
+
+        self.yal = self._read_yal(filename)
+        self.string = str(self.yal)
+        self.part_manager(self.string)
+        self.nfa: Automata = self._build_nfa()
 
         self.document_iterator()
         self._regex_iterator()
         self.variable_replacement_nfa()
         self._variable_iterator()
         print(self.document)
+
+    def part_manager(self, string: str):
+        chunks = self._separate_header_and_trailer(string)
+        header = chunks[0]
+        middle = chunks[1]
+        trailer = chunks[2]
+        self._generate_header_trailer_nfa()
+
+        self.string = header
+        self.document_iterator()
+        self.string = trailer
+        self.document_iterator()
+        self.string = middle
+
+    @staticmethod
+    def _separate_header_and_trailer(string: str):
+        # Separate the chunks based on '%%'
+        chunks = []
+        current_chunk = []
+        for line in string.split('\n'):  # Split the string into lines
+            if line.strip() == '%%':
+                chunks.append(''.join(current_chunk))
+                current_chunk = []
+            else:
+                current_chunk.append(line + '\n')  # Add the newline character back
+
+        # Add the last chunk
+        chunks.append(''.join(current_chunk))
+        return chunks
+
+    def _generate_header_trailer_nfa(self):
+        any_ = '(' + Regex.generate_char_set_with_separator('!', '~') + '| )'
+        any2 = '(' + Regex.generate_char_set_with_separator('!', '~') + '|\n|\t| )'
+        comment_dfa = Regex("'(''*'" + any_ + "*'*'')'").get_dfa()
+        trailer_header_dfa = Regex("{" + any2 + "*}").get_dfa()
+
+        initial_node = Node()
+        initial_node.add_transition(EPSILON, comment_dfa.get_initial())
+        initial_node.add_transition(EPSILON, trailer_header_dfa.get_initial())
+
+        final_nodes = comment_dfa.get_final() | trailer_header_dfa.get_final()
+        alphabet = comment_dfa.get_alphabet() | trailer_header_dfa.get_alphabet()
+        nodes = comment_dfa.get_states() | trailer_header_dfa.get_states()
+
+        for final in comment_dfa.get_final():
+            self.actions[final] = self._comment_found
+
+        for final in trailer_header_dfa.get_final():
+            self.actions[final] = self._header_or_trailer_found
+
+        for final in comment_dfa.get_final():
+            self.final_precedence[final] = 1
+
+        for final in trailer_header_dfa.get_final():
+            self.final_precedence[final] = 0
+
+        nfa = Automata(initial_node, final_nodes)
+        nfa.add_alphabet(alphabet)
+        nfa.add_states(nodes)
+
+        self.nfa = nfa
 
     def get_document(self):
         return self.document
@@ -219,7 +282,7 @@ class Yalex:
                         str_idx += 3
                         continue
 
-            elif string[str_idx] == "_":
+            if string[str_idx] == "_":
                 new_string += "['!'-'~']"
                 str_idx += 1
                 continue
@@ -227,7 +290,6 @@ class Yalex:
             else:
                 new_string += string[str_idx]
                 str_idx += 1
-
 
         # We look for characters like \n \t and \s
         for special in SPECIAL_SYMBOLS:
@@ -257,7 +319,6 @@ class Yalex:
                 self.document[section][identifier] += self.string[0]
                 self._cut_string(1)
 
-
     def document_iterator(self):
         while self.string:
             match = self._longest_match()
@@ -279,6 +340,12 @@ class Yalex:
             self.longest_matches_preprocessing("variables", variable)
 
     # ~~~~~~~~~~ Action associated methods below ~~~~~~~~~~
+    def _header_or_trailer_found(self, range_):
+        string = self.string[range_["start"]:range_["end"]]
+        print("header or trailer found: ", string)
+
+        self.document["header-trailer"].append(string)
+
     def _identifier_found(self, range_, section, identifier):
         string = self.string[range_["start"]:range_["end"]]
         print("identifier found: ", string)
