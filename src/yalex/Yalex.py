@@ -6,6 +6,7 @@ from src.constants import EPSILON, SPECIAL_SYMBOLS
 
 class Yalex:
     def __init__(self, filename="./utils/yalex_files/slr-2.yal"):
+        self.identifier_count = 0
         # We store data from the yal file in this dictionary
         self.document = {
             "header-trailer": [],
@@ -13,7 +14,8 @@ class Yalex:
             "variables": {},
             "entrypoint": {
                 "args": [],
-                "code": {}
+                "code": {},
+                "token_order": {}
             }
         }
 
@@ -284,7 +286,7 @@ class Yalex:
                         new_string += "'" + string[str_idx + 1] + "'"
                         str_idx += 3
                         continue
-                    
+
 
             if string[str_idx] == "_":
                 new_string += "['!'-'~']"
@@ -431,6 +433,9 @@ class Yalex:
         if identifier[0] == "|":
             identifier = identifier[1:]
             identifier = identifier.strip()
+            self.identifier_count += 1
+
+        self.document["entrypoint"]["token_order"][identifier] = self.identifier_count
 
         regex = string[range[1]:]
         regex = regex.strip()

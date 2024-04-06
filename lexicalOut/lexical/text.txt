@@ -1,0 +1,4 @@
+if 2 < 3 then
+    ident1
+else
+    ident2

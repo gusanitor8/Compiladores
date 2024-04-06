@@ -4,37 +4,68 @@ from src.Automatas.Automata import DeterministicFiniteAutomata, Automata
 from src.Automatas.Node import Node
 from src.constants import EPSILON
 from dataclasses import dataclass
+from src.LexicalAnalizerGenerator.LexicalCode import LEXICAL_ANALYZER_CODE
 import pickle
 import os
 
 OUT_PATH = "./lexicalOut/"
 
 
+
 @dataclass
 class LexicalAutomata:
     automata: Automata
     actions: dict
+    final_node_precedence: dict
 
 
 class LexicalAnalizerGenerator:
     def __init__(self, yalex_path: str, output_name: str):
         self.document = Yalex(yalex_path).get_document()
+        self.format_header_trailer()
         self.output_name = output_name
+        self.final_node_precedence = {}
         self.afn, self.actions = self.make_big_automata()
         self._serialize_automata()
+
+    def format_header_trailer(self):
+        header = self.document["header-trailer"][0]
+        trailer = self.document["header-trailer"][1]
+
+        new_header = ""
+        for line in header.split("\n"):
+            new_header += "\t" + line + "\n"
+
+        new_trailer = ""
+        for line in trailer.split("\n"):
+            new_trailer += "\t" + line + "\n"
+
+        self.document["header-trailer"][0] = new_header
+        self.document["header-trailer"][1] = new_trailer
+
 
     def make_mini_automatas(self):
         rules = self.document["entrypoint"]["code"]
         variables = self.document["variables"]
+        identifier_order = self.document["entrypoint"]["token_order"]
+        final_node_precedence = {}
         dfas_actions = {}
 
         for identifier in rules.keys():
             if identifier in variables:
                 dfa: DeterministicFiniteAutomata = Regex.build_dfa(variables[identifier])
                 dfas_actions[dfa] = rules[identifier]
+                for final in dfa.get_final():
+                    final_node_precedence[final] = identifier_order[identifier]
             else:
                 dfa: DeterministicFiniteAutomata = Regex.build_dfa(identifier)
                 dfas_actions[dfa] = rules[identifier]
+                for final in dfa.get_final():
+                    final_node_precedence[final] = identifier_order[identifier]
+
+        self.final_node_precedence = final_node_precedence
+
+
 
         return dfas_actions
 
@@ -77,10 +108,17 @@ class LexicalAnalizerGenerator:
         pickle_file_path = new_dir + "/lexicalAnalizer.pkl"
 
         # We make the automata object to serialize
-        lexical_automata = LexicalAutomata(self.afn, self.actions)
+        lexical_automata = LexicalAutomata(self.afn, self.actions, self.final_node_precedence)
 
         with open(pickle_file_path, 'wb') as pickle_file:
             pickle.dump(lexical_automata, pickle_file)
+
+        with open(new_file_path_py, 'w') as file:
+            file.write(LEXICAL_ANALYZER_CODE)
+            file.write('if __name__ == "__main__":')
+            file.write(self.document["header-trailer"][0])
+            file.write('\trun()')
+            file.write(self.document["header-trailer"][0])
 
 
 

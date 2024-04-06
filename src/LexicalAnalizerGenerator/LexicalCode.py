@@ -1,4 +1,4 @@
-
+LEXICAL_ANALYZER_CODE = '''
 
 import pickle
 from src.LexicalAnalizerGenerator.LexicalAnalizerGenerator import LexicalAutomata
@@ -93,11 +93,4 @@ def unpickle():
         automata = pickle.load(file)
     return automata
 
-if __name__ == "__main__":	
-	print("Este es un intendo de header")
-	variableheader = "hola desde el header"
-	
-	run()	
-	print("Este es un intendo de header")
-	variableheader = "hola desde el header"
-	
+'''
