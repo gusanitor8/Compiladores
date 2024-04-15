@@ -331,8 +331,9 @@ class Yalex:
             if match:
                 function = self.actions[match["node"]]
                 function(match)
-                self._cut_string(match["end"] - 1)
+                self._cut_string(match["end"])
             else:
+                print("No token found: ", self.string[0])
                 self._cut_string(1)
 
         return self.document

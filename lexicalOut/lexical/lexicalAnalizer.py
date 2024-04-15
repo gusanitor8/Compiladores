@@ -81,7 +81,7 @@ def find_token(automata: Automata, word: str):
         index += 1
 
     if not longest_match_states:
-        print("Invalid token: ", word)
+        print("Invalid token: ", word[0])
         return None
 
     result = (longest_match_states, index)
@@ -96,7 +96,7 @@ def unpickle():
 if __name__ == "__main__":	
 	print("Este es un intendo de header")
 	variableheader = "hola desde el header"
-
+	
 	run()	
 	print("Este es un intendo de trailer")
 	print("variableheader = ", variableheader)

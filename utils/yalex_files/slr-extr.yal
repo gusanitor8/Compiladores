@@ -16,6 +16,7 @@ let numero = '-'?digito+ (*comentario que estorba*)
 let hex = 0xdigito+
 let letra = ['a'-'z''A'-'Z']
 let identificador = letra(letra|numero)+
+let cadenas = "(digito|letra|delimitador)*"
 
 rule tokens =
     espacioEnBlanco    { print("WS") }
@@ -30,6 +31,7 @@ rule tokens =
   | '>''='                { print("GREATER_EQUALS") }
   | '<''='                { print("LESS_EQUALS") }
   | identificador    { print("ID") }
+  | cadenas { print("CADENA DE CARACTERES") }
 
 %%
 
