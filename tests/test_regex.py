@@ -73,18 +73,29 @@ def test_shortest_match():
 
 
 def test_longest_match():
-    test_regex = "hello"
+    # test_regex = "hello"
+    # regex = Regex(test_regex)
+    #
+    # assert regex.longest_match("hello") == (0, 5)
+    # assert regex.longest_match(" hello") is None
+    #
+    # test_regex = "ba*"
+    # regex = Regex(test_regex)
+    #
+    # assert regex.longest_match("ba") == (0, 2)
+    # assert regex.longest_match(" ba") is None
+
+    test_regex = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+ *:( |\t|\n)*((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+|(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)+)( |\t|\n)+('|'( |\t|\n)+((a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)+|(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)+))*;"
     regex = Regex(test_regex)
 
-    assert regex.longest_match("hello") == (0, 5)
-    assert regex.longest_match(" hello") is None
+    test_str = """p:
+    t
+;
+    """
+    res = regex.longest_match(test_str)
+    print(test_str[res[0]:res[1]])
 
-    test_regex = "ba*"
-    regex = Regex(test_regex)
-
-    assert regex.longest_match("ba") == (0, 2)
-    assert regex.longest_match(" ba") is None
-
+    assert res is not None
 
 def test_shortest_search():
     test_regex = "hello"

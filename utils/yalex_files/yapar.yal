@@ -1,0 +1,54 @@
+{
+tokens = set()
+productions = []
+
+def token_found(token_str: str):
+    token_str = token_str.strip()
+    token_str = token_str[7:]
+
+    tokens.add(token_str)
+
+def production_found(token_str: str):
+    item = token_str.split(":")
+    rhs = item[1].strip()
+    lhs = item[0].strip()
+
+    rhs = rhs.split("|")
+
+    for i in range(len(rhs)):
+        if rhs[i][-1] == ";":
+            rhs[i] = rhs[i][:-1]
+
+        rhs[i] = rhs[i].strip()
+        rhs[i] = rhs[i].split(" ")
+
+        for j in range(len(rhs[i])):
+            rhs[i][j] = rhs[i][j].strip()
+
+    dic = {str(lhs): rhs}
+    productions.append(dic)
+
+}
+
+%%
+
+let ws = ["\s\t\n"]
+let coso = %token\s+['A'-'Z']+
+let production = ['a'-'z']+\s*:(ws*(['a'-'z']+|['A'-'Z']+)ws+'|'?)+;
+let ignore = IGNORE:\s+['A'-'Z']+
+let comment = /'*'_'*'/
+
+(* token_string es una variable especial que nos permite acceder al token *)
+
+rule tokens =
+      ws            { print("WS") }
+    |coso           { token_found(token_string) }
+    |ignore         { print("IGNORE") }
+    |production     { production_found(token_string) }
+    |comment        { print("COMMENT") }
+
+%%
+
+{
+print("done")
+}

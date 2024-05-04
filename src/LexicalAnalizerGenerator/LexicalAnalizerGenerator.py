@@ -4,7 +4,7 @@ from src.Automatas.Automata import DeterministicFiniteAutomata, Automata
 from src.Automatas.Node import Node
 from src.constants import EPSILON
 from dataclasses import dataclass
-from src.LexicalAnalizerGenerator.LexicalCode import LEXICAL_ANALYZER_CODE, MIDDLE
+from src.LexicalAnalizerGenerator.LexicalCode import *
 import pickle
 import os
 
@@ -34,7 +34,7 @@ class LexicalAnalizerGenerator:
 
         new_header = ""
         for line in header.split("\n"):
-            new_header += "    " + line + "\n"
+            new_header += "" + line + "\n"
 
         new_trailer = ""
         for line in trailer.split("\n"):
@@ -114,7 +114,8 @@ class LexicalAnalizerGenerator:
             pickle.dump(lexical_automata, pickle_file)
 
         with open(new_file_path_py, 'w') as file:
-            file.write(LEXICAL_ANALYZER_CODE)
+            file.write(IMPORTS)
             file.write(self.document["header-trailer"][0])
+            file.write(LEXICAL_ANALYZER_CODE)
             file.write(MIDDLE)
             file.write(self.document["header-trailer"][1])

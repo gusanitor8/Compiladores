@@ -2,7 +2,7 @@ from src.LexicalAnalizerGenerator.LexicalAnalizerGenerator import LexicalAnalize
 
 
 def run():
-    lexical = LexicalAnalizerGenerator("./utils/yalex_files/slr-extr.yal", "lexical")
+    lexical = LexicalAnalizerGenerator("./utils/yalex_files/yapar.yal", "lexical")
 
 
 
