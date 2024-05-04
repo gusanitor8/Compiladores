@@ -29,9 +29,8 @@ def production_found(token_str: str):
 
         for j in range(len(rhs[i])):
             rhs[i][j] = rhs[i][j].strip()
-
-    dic = {str(lhs): rhs}
-    productions.append(dic)
+            dic = {str(lhs): rhs[i][j]}
+            productions.append(dic)
 
 
 
@@ -116,15 +115,10 @@ def run(file_path: str):
     automata: Automata = lexical_automata.automata
     actions = lexical_automata.actions
     final_node_precedence = lexical_automata.final_node_precedence
-
+    
     content = get_file_content(file_path)
 
     search_tokens(automata, final_node_precedence, actions, content)
     
     print("done")
     
-
-if __name__ == "__main__":
-    run("text.txt")
-    print(tokens)
-    print(productions)
