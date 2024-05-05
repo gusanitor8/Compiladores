@@ -37,7 +37,7 @@
 %token EQ
 %token MINUS
 %token PLUS TIMES DIV
-
+IGNORE PLUS
 
 %%
 

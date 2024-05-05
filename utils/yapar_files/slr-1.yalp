@@ -1,7 +1,7 @@
-/* Configuración del parser para Gramática No.1 */
-/* Sigue la gramática SLR: */
-/* E → E + T | T */
-/* T → T ∗ F | F */
+/* Configuración del parser para Gramatica No.1 */
+/* Sigue la gramatica SLR: */
+/* E -> E + T | T */
+/* T → T * F | F */
 /* F → ( E ) | id */
 
 %token ID

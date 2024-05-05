@@ -35,7 +35,7 @@ def ignore_found(token_str: str):
 
     for i in range(len(token_str)):
         token_str[i] = token_str[i].strip()
-        tokens.add(token_str[i])
+        ignore.add(token_str[i])
 
 
 def production_found(token_str: str):
@@ -73,8 +73,8 @@ let ws = ["\s\t\n"]
 let sep = ws%%ws
 let coso = %token\s+['A'-'Z']+(\s['A'-'Z']+)*
 let production = ['a'-'z']+\s*:(ws*(['a'-'z']+|['A'-'Z']+)ws+'|'?)+;
-let ignore = IGNORE:\s+['A'-'Z']+
-let comment = /'*'_'*'/
+let ignore = IGNORE\s+['A'-'Z']+
+let comment = /'*'(_|\s)*'*'/
 
 (* token_string es una variable especial que nos permite acceder al token *)
 

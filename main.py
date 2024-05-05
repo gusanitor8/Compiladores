@@ -19,6 +19,7 @@ def run():
     index_set_dic, lr0 = builder.get_item_sets()
     builder.draw_automaton(index_set_dic, lr0, "slr-4")
 
+    # lexical = LexicalAnalizerGenerator("./utils/yalex_files/yapar.yal", "lexical")
 
 if __name__ == "__main__":
     run()

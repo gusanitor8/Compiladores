@@ -40,7 +40,7 @@ def ignore_found(token_str: str):
 
     for i in range(len(token_str)):
         token_str[i] = token_str[i].strip()
-        tokens.add(token_str[i])
+        ignore.add(token_str[i])
 
 
 def production_found(token_str: str):
