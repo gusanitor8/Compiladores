@@ -1,0 +1,40 @@
+{
+tokens = []
+entrypoint_found = False
+
+def rule_found(token_str: str):
+    if entrypoint_found:
+        string = token_str.strip()
+        if string[0] == "|":
+            string = string[1:]
+
+        string = string.strip()
+        string = string.split(" ", 1)[1]
+        string = string.strip()
+        string = string[1:-1]
+        string = string.replace("return", "")
+        string = string.strip()
+        if string:
+            tokens.append(string)
+
+
+
+def entrypoint():
+    global entrypoint_found
+    entrypoint_found = True
+}
+
+%%
+
+let entry = rule\s+tokens\s+=
+let coso = ('|'\s+)?_+\s+{(_|\s)*}
+
+rule tokens =
+      coso       {rule_found(token_string)}
+    | entry      {entrypoint()}
+
+%%
+
+{
+return tokens
+}

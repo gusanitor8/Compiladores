@@ -216,5 +216,5 @@ class Builder:
             for symbol, dest_idx in transitions.items():
                 automaton.edge(f'I{node_idx}', f'I{dest_idx}', label=symbol)
 
-        automaton.render(filename=f'LR0_prueba', directory="./src/lr0_out/", cleanup=True, format='png', view=True)
+        automaton.render(filename=f'LR0_prueba', directory="./out/lr0_out/", cleanup=True, format='png', view=True)
         print('Automata LR(0) generado exitosamente, guardado en /lr0_out')

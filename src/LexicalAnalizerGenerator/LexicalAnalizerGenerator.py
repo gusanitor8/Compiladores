@@ -28,6 +28,9 @@ class LexicalAnalizerGenerator:
         self.afn, self.actions = self.make_big_automata()
         self._serialize_automata()
 
+    def get_document(self):
+        return self.document
+
     def format_header_trailer(self):
         header = self.document["header-trailer"][0]
         trailer = self.document["header-trailer"][1]

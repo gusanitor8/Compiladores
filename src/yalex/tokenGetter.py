@@ -1,11 +1,33 @@
-IMPORTS = '''
+
 import pickle
 from src.LexicalAnalizerGenerator.LexicalAnalizerGenerator import LexicalAutomata
 from src.Automatas.Automata import Automata
 
-'''
 
-LEXICAL_ANALYZER_CODE = '''
+tokens = []
+entrypoint_found = False
+
+def rule_found(token_str: str):
+    if entrypoint_found:
+        string = token_str.strip()
+        if string[0] == "|":
+            string = string[1:]
+
+        string = string.strip()
+        string = string.split(" ", 1)[1]
+        string = string.strip()
+        string = string[1:-1]
+        string = string.replace("return", "")
+        string = string.strip()
+        if string:
+            tokens.append(string)
+
+
+def entrypoint():
+    global entrypoint_found
+    entrypoint_found = True
+
+
 def get_file_name():
     file_name = str(input("Enter the file name: "))
     return file_name
@@ -80,12 +102,10 @@ def find_token(automata: Automata, word: str):
 
 
 def unpickle():
-    with open("./lexicalAnalizer.pkl", "rb") as file:
+    with open("./src/yalex/lexicalAnalizer.pkl", "rb") as file:
         automata = pickle.load(file)
     return automata            
-'''
 
-MIDDLE = '''
 def run(file_path: str):
     lexical_automata: LexicalAutomata = unpickle()
     automata: Automata = lexical_automata.automata
@@ -95,4 +115,8 @@ def run(file_path: str):
     content = get_file_content(file_path)
 
     search_tokens(automata, final_node_precedence, actions, content)
-'''
+    
+    return tokens
+    
+if __name__ == "__main__":
+    print(run("../../lexicalOut/lexical/test.txt"))

@@ -14,7 +14,23 @@ def token_found(token_str: str):
     token_str = token_str.strip()
     token_str = token_str[7:]
 
-    tokens.add(token_str)
+    token_str = token_str.split(" ")
+
+    for i in range(len(token_str)):
+        token_str[i] = token_str[i].strip()
+        tokens.add(token_str[i])
+
+
+def ignore_found(token_str: str):
+    token_str = token_str.strip()
+    token_str = token_str[7:]
+
+    token_str = token_str.split(" ")
+
+    for i in range(len(token_str)):
+        token_str[i] = token_str[i].strip()
+        tokens.add(token_str[i])
+
 
 def production_found(token_str: str):
     item = token_str.split(":")
@@ -32,17 +48,18 @@ def production_found(token_str: str):
 
         for j in range(len(rhs[i])):
             rhs[i][j] = rhs[i][j].strip()
-            dic = {str(lhs): rhs[i][j]}
-            productions.append(dic)
 
-            add_adress(lhs, len(productions) - 1)
+    for rule in rhs:
+        dic = {str(lhs): rule}
+        productions.append(dic)
+        add_adress(lhs, len(productions) - 1)
 
 }
 
 %%
 
 let ws = ["\s\t\n"]
-let coso = %token\s+['A'-'Z']+
+let coso = %token\s+['A'-'Z']+(\s['A'-'Z']+)?
 let production = ['a'-'z']+\s*:(ws*(['a'-'z']+|['A'-'Z']+)ws+'|'?)+;
 let ignore = IGNORE:\s+['A'-'Z']+
 let comment = /'*'_'*'/
@@ -59,5 +76,5 @@ rule tokens =
 %%
 
 {
-print("done")
+return tokens, productions, productions_adress
 }

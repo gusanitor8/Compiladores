@@ -412,7 +412,7 @@ class Yalex:
     def _variable_found(self, range):
         string = self.string[range["start"]:range["end"]]
         string = string.strip()
-        variable, value = string.split("=")
+        variable, value = string.split("=", 1)
         variable = variable[4:]
         variable = variable.strip()
         value = value.strip()

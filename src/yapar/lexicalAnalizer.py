@@ -19,7 +19,23 @@ def token_found(token_str: str):
     token_str = token_str.strip()
     token_str = token_str[7:]
 
-    tokens.add(token_str)
+    token_str = token_str.split(" ")
+
+    for i in range(len(token_str)):
+        token_str[i] = token_str[i].strip()
+        tokens.add(token_str[i])
+
+
+def ignore_found(token_str: str):
+    token_str = token_str.strip()
+    token_str = token_str[7:]
+
+    token_str = token_str.split(" ")
+
+    for i in range(len(token_str)):
+        token_str[i] = token_str[i].strip()
+        tokens.add(token_str[i])
+
 
 def production_found(token_str: str):
     item = token_str.split(":")
@@ -37,10 +53,11 @@ def production_found(token_str: str):
 
         for j in range(len(rhs[i])):
             rhs[i][j] = rhs[i][j].strip()
-            dic = {str(lhs): rhs[i][j]}
-            productions.append(dic)
 
-            add_adress(lhs, len(productions) - 1)
+    for rule in rhs:
+        dic = {str(lhs): rule}
+        productions.append(dic)
+        add_adress(lhs, len(productions) - 1)
 
 
 
@@ -116,7 +133,7 @@ def find_token(automata: Automata, word: str):
 
 
 def unpickle():
-    with open("./lexicalAnalizer.pkl", "rb") as file:
+    with open("./src/yapar/lexicalAnalizer.pkl", "rb") as file:
         automata = pickle.load(file)
     return automata            
 
@@ -130,5 +147,5 @@ def run(file_path: str):
 
     search_tokens(automata, final_node_precedence, actions, content)
     
-    print("done")
+    return tokens, productions, productions_adress
     
