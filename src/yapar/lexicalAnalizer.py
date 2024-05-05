@@ -7,6 +7,8 @@ from src.Automatas.Automata import Automata
 tokens = set()
 productions = []
 productions_adress = {}
+separator_found_ = False
+ignore = set()
 
 def add_adress(symbol: str, adress: int):
     if symbol in productions_adress:
@@ -16,6 +18,10 @@ def add_adress(symbol: str, adress: int):
 
 
 def token_found(token_str: str):
+    global separator_found_
+    if separator_found_:
+        raise Exception("Syntax error: separator found before token declaration was finished")
+
     token_str = token_str.strip()
     token_str = token_str[7:]
 
@@ -58,6 +64,11 @@ def production_found(token_str: str):
         dic = {str(lhs): rule}
         productions.append(dic)
         add_adress(lhs, len(productions) - 1)
+
+def separator_found():
+    global separator_found_
+    separator_found_ = True
+
 
 
 
@@ -107,6 +118,7 @@ def find_token(automata: Automata, word: str):
     """
     index = 0
     longest_match_states = set()
+    longest_index = 0
     current = automata.get_initial()
     current = Automata.e_closure(current)
 
@@ -121,6 +133,7 @@ def find_token(automata: Automata, word: str):
         # We check if the current state is a final state
         if any(state in automata.get_final() for state in current):
             longest_match_states = current.intersection(automata.get_final())
+            longest_index = index + 1
 
         index += 1
 
@@ -128,7 +141,7 @@ def find_token(automata: Automata, word: str):
         print("Invalid token: ", word[0])
         return None
 
-    result = (longest_match_states, index)
+    result = (longest_match_states, longest_index)
     return result
 
 
@@ -146,6 +159,9 @@ def run(file_path: str):
     content = get_file_content(file_path)
 
     search_tokens(automata, final_node_precedence, actions, content)
+    
+    if not separator_found_:
+        raise Exception("Syntax error: separator not found")
     
     return tokens, productions, productions_adress
     

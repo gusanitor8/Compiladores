@@ -36,9 +36,10 @@
 %token LT
 %token EQ
 %token MINUS
-%token DIV
-%token PLUS
-%token TIMES
+%token PLUS TIMES DIV
+
+
+%%
 
 p:
     t
