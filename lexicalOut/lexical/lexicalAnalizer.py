@@ -6,6 +6,14 @@ from src.Automatas.Automata import Automata
 
 tokens = set()
 productions = []
+productions_adress = {}
+
+def add_adress(symbol: str, adress: int):
+    if symbol in productions_adress:
+        productions_adress[symbol].append(adress)
+    else:
+        productions_adress[symbol] = [adress]
+
 
 def token_found(token_str: str):
     token_str = token_str.strip()
@@ -31,6 +39,8 @@ def production_found(token_str: str):
             rhs[i][j] = rhs[i][j].strip()
             dic = {str(lhs): rhs[i][j]}
             productions.append(dic)
+
+            add_adress(lhs, len(productions) - 1)
 
 
 

@@ -17,10 +17,10 @@ class Builder:
 
     def _classify_symbols(self):
         for symbol in self.symbols:
-            if symbol.isupper():
-                self.terminals.add(symbol)
-            else:
+            if symbol.islower():
                 self.non_terminals.add(symbol)
+            else:
+                self.terminals.add(symbol)
 
     def _decode_item(self, item: Tuple) -> Tuple:
         """
@@ -30,7 +30,8 @@ class Builder:
         """
         key = list(self.grammar[item[0]].keys())[0]
         production = self.grammar[item[0]][key]
-        return key, production
+        dot_position = item[1]
+        return key, production, dot_position
 
     def _augment_grammar(self):
         """
@@ -107,7 +108,7 @@ class Builder:
             key = list(self.grammar[item[0]].keys())[0]
             production = self.grammar[item[0]][key]
 
-            if len(production) - 1 > item[1]:  # If the dot is not at the end of the production
+            if len(production) > item[1]:  # If the dot is not at the end of the production
                 if production[item[1]] == symbol:
                     res.add((item[0], item[1] + 1))
 
@@ -183,7 +184,6 @@ class Builder:
 
         return index_set_dic, lr0
 
-
     def draw_automaton(self, index_set_dic, lr0):
         automaton = Digraph('automaton', node_attr={'shape': 'record'}, format='png')
 
@@ -191,11 +191,14 @@ class Builder:
             item_html = f'<<I>I</I><SUB>{idx}</SUB><BR/>'
 
             for item in item_set:
-                head, body = self._decode_item(item)
+                head, body, dot_position = self._decode_item(item)
 
                 item_html += f'<I>{head}</I> &#8594; '
 
-                for symbol in body:
+                for symbol_idx, symbol in enumerate(body):
+
+                    if symbol_idx == dot_position:
+                        item_html += f'&#8226; '
                     if symbol in self.non_terminals:
                         item_html += f'<I>{symbol}</I>'
                     elif symbol in self.terminals:
@@ -203,7 +206,10 @@ class Builder:
                     else:
                         item_html += f'{symbol}'
 
-            item_html += '<BR ALIGN="LEFT"/>'
+                    if symbol_idx >= len(body) - 1 and dot_position == len(body):
+                        item_html += f'&#8226;'
+
+                item_html += '<BR ALIGN="LEFT"/>'
             automaton.node(f'I{idx}', f'{item_html}>')
 
         for node_idx, transitions in lr0.items():
@@ -212,5 +218,3 @@ class Builder:
 
         automaton.render(filename=f'LR0_prueba', directory="./src/lr0_out/", cleanup=True, format='png', view=True)
         print('Automata LR(0) generado exitosamente, guardado en /lr0_out')
-
-
