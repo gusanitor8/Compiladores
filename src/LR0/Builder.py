@@ -190,6 +190,7 @@ class Builder:
         for idx, item_set in index_set_dic.items():
             item_html = f'<<I>I</I><SUB>{idx}</SUB><BR/>'
 
+            is_final = False
             for item in item_set:
                 head, body, dot_position = self._decode_item(item)
 
@@ -209,8 +210,16 @@ class Builder:
                     if symbol_idx >= len(body) - 1 and dot_position == len(body):
                         item_html += f'&#8226;'
 
+                if item == (0, 1):
+                    is_final = True
+
+
                 item_html += '<BR ALIGN="LEFT"/>'
             automaton.node(f'I{idx}', f'{item_html}>')
+
+            if is_final:
+                automaton.node('acc', '<<B>ACCEPT</B>>', shape='none')
+                automaton.edge(f'I{idx}', 'acc', label='$')
 
         for node_idx, transitions in lr0.items():
             for symbol, dest_idx in transitions.items():
