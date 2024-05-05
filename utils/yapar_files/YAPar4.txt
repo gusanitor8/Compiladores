@@ -1,0 +1,22 @@
+
+%token A B C D G H
+
+%%
+
+s:
+    | a c b
+    | c B B
+    | b A
+;
+a:
+    | D A
+    | b c
+;
+b:
+    | G
+    | epsilon
+;
+c:
+    | H
+    | epsilon
+;

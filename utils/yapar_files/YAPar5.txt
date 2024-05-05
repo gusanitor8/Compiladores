@@ -1,0 +1,26 @@
+
+%token A B C D G H F
+
+%%
+
+s:
+    | A b d H
+;
+b:
+    | C c
+;
+c:
+    | B c
+    | epsilon
+;
+d:
+    | e f
+;
+e:
+    | G
+    | epsilon
+;
+f:
+    | F
+    | epsilon
+;
