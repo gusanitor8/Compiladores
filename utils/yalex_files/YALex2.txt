@@ -10,8 +10,7 @@ let digits = digit+
 let id = (letra)(letra|digit)*
 let number = digits(.digits)?(('E'('_+'|'-')?)digits)?
 
-rule tokens = 
-  |  ws       { return WHITESPACE }             
+rule tokens =
   | id        { return ID }
   | number    { return NUMBER }
   | '+'       { return PLUS }

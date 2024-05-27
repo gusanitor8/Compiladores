@@ -11,17 +11,17 @@ IGNORE WHITESPACE
 %%
 
 expression:
-  | expression PLUS term
+   expression PLUS term
   | expression MINUS term
   | term
 ;
 term:
-  | term TIMES factor
+   term TIMES factor
   | term DIV factor
   | factor
 ;
 factor:
-  | LPAREN expression RPAREN
+   LPAREN expression RPAREN
   | ID
   | NUMBER
 ;

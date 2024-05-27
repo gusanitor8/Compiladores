@@ -5,7 +5,7 @@ from src.yalex.tokenGetter import run as token_getter_run
 
 
 def run():
-    tokens, productions, production_adress = yapar_run("./utils/yapar_files/YAPar4.txt")
+    tokens, productions, production_adress = yapar_run("./utils/yapar_files/YAPar5.txt")
     # yalex_tokens = set(token_getter_run("./utils/yalex_files/YALex2.txt"))
     #
     # print(yalex_tokens)

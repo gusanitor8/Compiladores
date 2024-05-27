@@ -4,19 +4,19 @@
 %%
 
 s:
-    | a c b
+     a c b
     | c B B
     | b A
 ;
 a:
-    | D A
+     D A
     | b c
 ;
 b:
-    | G
+     G
     | epsilon
 ;
 c:
-    | H
+     H
     | epsilon
 ;

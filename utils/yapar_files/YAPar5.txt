@@ -4,23 +4,23 @@
 %%
 
 s:
-    | A b d H
+     A b d H
 ;
 b:
-    | C c
+     C c
 ;
 c:
-    | B c
+     B c
     | epsilon
 ;
 d:
-    | e f
+     e f
 ;
 e:
-    | G
+     G
     | epsilon
 ;
 f:
-    | F
+     F
     | epsilon
 ;
