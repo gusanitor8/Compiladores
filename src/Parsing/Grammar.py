@@ -41,7 +41,7 @@ class Grammar:
             lista = dic[keys[0]]
 
             if len(lista) > 0:
-                return {(0, 0)}
+                return 0, 0
 
         raise Exception("Grammar is empty")
 
@@ -58,6 +58,8 @@ class Grammar:
 
         self.production_adress["s'"] = [0]
 
+    # TODO: this should be part of the parsing table since the decoding/encoding of a grammar item might change \
+    #  depending on the parsing table
     def decode_grammar_item(self, grammar_item: Tuple):
         """
         This method decodes an item
@@ -75,7 +77,7 @@ class Grammar:
         :return: a set of symbols, and True if its nullable or False if its not
         """
         nullable_ = False
-        if symbol in self.terminals:
+        if symbol not in self.non_terminals:
             return False, {symbol}
 
         if symbol == EPSILON:
@@ -86,20 +88,21 @@ class Grammar:
 
         for symbol_idx in symbol_idxs:
             production = self.productions[symbol_idx][symbol]
-            nullable, first_set = self._evaluate_production(production, symbol)
+            nullable, first_set = self.first_production(production, symbol)
             first_ = first_set | first_
             nullable_ = nullable or nullable_
 
         return nullable_, first_
 
-    def _evaluate_production(self, production, symbol) -> Tuple[bool, Set]:
+    def first_production(self, production, symbol=None) -> Tuple[bool, Set]:
         first_ = set()
 
-        # We check if its left recursive
-        if production[0] == symbol:
-            # return False, set()
-            is_nullable, first_set_ = self.handle_left_recursion(symbol)
-            return is_nullable, first_set_
+        if symbol is not None:
+            # We check if its left recursive
+            if production[0] == symbol:
+                # return False, set()
+                is_nullable, first_set_ = self.handle_left_recursion(symbol)
+                return is_nullable, first_set_
 
         idx = 0
         nullable = True
@@ -133,7 +136,7 @@ class Grammar:
         for production_idx in production_idxs:
             if production_idx not in left_recursive_productions_idxs:
                 production = self.productions[production_idx][symbol]
-                nullable, first_set = self._evaluate_production(production, symbol)
+                nullable, first_set = self.first_production(production, symbol)
                 first_ = first_set | first_
                 nullable_ = nullable or nullable_
 

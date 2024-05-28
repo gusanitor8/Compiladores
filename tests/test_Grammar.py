@@ -5,9 +5,9 @@ from src.constants import EPSILON
 
 def test_grammar():
     productions = [{'s': ['s', 'x']},
-            {'s': ['y']},
-            {'x': ['X']},
-            {'y': ['Y']}]
+                   {'s': ['y']},
+                   {'x': ['X']},
+                   {'y': ['Y']}]
     tokens = {'X', 'Y'}
     production_adress = {'s': [0, 1], 'x': [2], 'y': [3]}
 
@@ -31,3 +31,26 @@ def test_grammar():
     expected_set = {'Y', 'X', EPSILON}
     assert nullable is True
     assert expected_set == first_set
+
+    productions = [
+        {'e': ['t', "e'"]},
+        {"e'": ["+", 't', "e'"]},
+        {"e'": [EPSILON]},
+        {'t': ['f', "t'"]},
+        {"t'": ["*", 'f', "t'"]},
+        {"t'": [EPSILON]},
+        {'f': ['(', 'e', ')']},
+        {'f': ['ID']}
+    ]
+    tokens = {'+', '*', '(', ')', 'ID'}
+    production_adress = {'e': [0], "e'": [1, 2], 't': [3], "t'": [4, 5], 'f': [6, 7]}
+
+    grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
+    nullable, first_set = grammar.first('f')
+    assert nullable is False
+    assert first_set == {'(', 'ID'}
+
+    nullable, first_set = grammar.first("e'")
+    assert nullable is True
+    assert first_set == {'+', EPSILON}
+
