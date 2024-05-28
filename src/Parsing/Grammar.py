@@ -1,0 +1,114 @@
+from typing import Tuple, Set
+from src.constants import EPSILON
+
+
+class Grammar:
+    def __init__(self, tokens, productions, production_adress, augment_grammar=False):
+        self.tokens = tokens
+        self.productions = productions
+        self.production_adress = production_adress
+        self.terminals = set()
+        self.non_terminals = set()
+
+        if augment_grammar:
+            self.augment_grammar()
+
+        self.symbols = self._get_symbols()
+        self.initial_item = self.get_initial_item()
+        self._classify_symbols()
+
+    def _classify_symbols(self):
+        for symbol in self.symbols:
+            if symbol.islower():
+                self.non_terminals.add(symbol)
+            else:
+                self.terminals.add(symbol)
+
+    def _get_symbols(self):
+        symbols = set()
+
+        for dic in self.productions:
+            for key in dic.keys():
+                for symbol in dic[key]:
+                    symbols.add(symbol)
+
+        return symbols
+
+    def get_initial_item(self):
+        if len(self.productions) > 0:
+            dic = self.productions[0]
+            keys = list(dic.keys())
+            lista = dic[keys[0]]
+
+            if len(lista) > 0:
+                return {(0, 0)}
+
+        raise Exception("Grammar is empty")
+
+    def augment_grammar(self):
+        """
+        This method augments the grammar by adding a new production S' -> S where S is the start symbol
+        :return:
+        """
+        start_symbol = list(self.productions[0].keys())[0]
+        self.productions.insert(0, {"S'": [start_symbol]})
+
+        for key in self.production_adress.keys():
+            self.production_adress[key] = [i + 1 for i in self.production_adress[key]]
+
+        self.production_adress["s'"] = [0]
+
+    def decode_grammar_item(self, grammar_item: Tuple):
+        """
+        This method decodes an item
+        :param grammar_item: Tuple
+        :return:
+        """
+        key = list(self.productions[grammar_item[0]].keys())[0]
+        production = self.productions[grammar_item[0]][key]
+        dot_position = grammar_item[1]
+        return key, production, dot_position
+
+    def first(self, symbol) -> Tuple[bool, Set]:
+        """
+        :param symbol:
+        :return: a set of symbols, and True if its nullable or False if its not
+        """
+        nullable_ = False
+        if symbol in self.terminals:
+            return False, {symbol}
+
+        if symbol == EPSILON:
+            return True, {EPSILON}
+
+        first_ = set()
+        symbol_idxs = self.production_adress[symbol]
+
+        for symbol_idx in symbol_idxs:
+            production = self.productions[symbol_idx][symbol]
+            nullable, first_set = self._evaluate_production(production, symbol)
+            first_ = first_set | first_
+            nullable_ = nullable or nullable_
+
+        return nullable_, first_
+
+    def _evaluate_production(self, production, symbol) -> Tuple[bool, Set]:
+        first_ = set()
+
+        # We check if its left recursive
+        if production[0] == symbol:
+            return False, set()
+
+        idx = 0
+        nullable = True
+
+        while nullable:
+            if idx < len(production):
+                nullable, first_set = self.first(production[idx])
+                first_ = first_ | first_set
+                idx += 1
+            else:
+                return True, first_
+
+        first_ = first_ - {EPSILON}
+        return False, first_
