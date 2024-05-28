@@ -13,7 +13,9 @@ def test_grammar():
 
     grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
     nullable, first_set = grammar.first('s')
+    expected_set = {'Y'}
     assert nullable is False
+    assert first_set == expected_set
 
     productions = [{'s': ['s', 'x']},
                    {'s': ['y']},
@@ -26,4 +28,6 @@ def test_grammar():
 
     grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
     nullable, first_set = grammar.first('s')
-    assert nullable is False
+    expected_set = {'Y', 'X', EPSILON}
+    assert nullable is True
+    assert expected_set == first_set

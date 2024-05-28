@@ -97,7 +97,9 @@ class Grammar:
 
         # We check if its left recursive
         if production[0] == symbol:
-            return False, set()
+            # return False, set()
+            is_nullable, first_set_ = self.handle_left_recursion(symbol)
+            return is_nullable, first_set_
 
         idx = 0
         nullable = True
@@ -112,3 +114,45 @@ class Grammar:
 
         first_ = first_ - {EPSILON}
         return False, first_
+
+    def handle_left_recursion(self, symbol) -> Tuple[bool, Set]:
+        # We find the productions that are left recursive
+        left_recursive_productions_idxs = set()
+        production_idxs = self.production_adress[symbol]
+        for production_idx in production_idxs:
+            if self.productions[production_idx][symbol][0] == symbol:
+                left_recursive_productions_idxs.add(production_idx)
+
+        # if there is more than one production that is left recursive
+        if len(left_recursive_productions_idxs) > 1:
+            raise Exception("There are more than one left recursive productions")
+
+        # We find the first set of the non left recursive productions
+        first_ = set()
+        nullable_ = False
+        for production_idx in production_idxs:
+            if production_idx not in left_recursive_productions_idxs:
+                production = self.productions[production_idx][symbol]
+                nullable, first_set = self._evaluate_production(production, symbol)
+                first_ = first_set | first_
+                nullable_ = nullable or nullable_
+
+        if nullable_:
+            for left_recursive_production_idx in left_recursive_productions_idxs:
+                nullable = True
+                production = self.productions[left_recursive_production_idx][symbol]
+                if len(production) > 1:
+                    idx = 1
+
+                    while nullable:
+                        if idx < len(production):
+                            nullable, first_set = self.first(production[idx])
+                            first_ = first_ | first_set
+                            idx += 1
+                        else:
+                            return True, first_
+
+                    first_ = first_ - {EPSILON}
+                    return False, first_
+
+        return nullable_, first_
