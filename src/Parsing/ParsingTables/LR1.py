@@ -1,26 +1,29 @@
 from src.Parsing.Grammar import Grammar
 from typing import Tuple
+from src.constants import ENDMAKER
 
 
 class Lr1:
     def __init__(self, grammar: Grammar):
         self.grammar: Grammar = grammar
-        initial_item = grammar.initial_item
-        self.look_aheads = {initial_item: {'$'}}  # None represents the end of the input $
 
-    def _get_look_ahead(self, item_set):
-        if item_set in self.look_aheads:
-            return self.look_aheads[item_set]
-        else:
-            return set()
+    def closure(self, item_set) -> Tuple[set, dict]:
+        look_aheads = {self.grammar.initial_item: {ENDMAKER}}
 
-    def _set_look_ahead(self, item, look_ahead: set):
-        if item not in self.look_aheads:
-            self.look_aheads[item] = look_ahead
-        else:
-            self.look_aheads[item] = look_ahead | self.look_aheads[item]
+        def _set_look_ahead(item_, look_ahead: set):
+            nonlocal look_aheads
+            if item_ not in look_aheads:
+                look_aheads[item_] = look_ahead
+            else:
+                look_aheads[item_] = look_ahead | look_aheads[item_]
 
-    def closure(self, item_set):
+        def _get_look_ahead(item_set_):
+            nonlocal look_aheads
+            if item_set_ in look_aheads:
+                return look_aheads[item_set_]
+            else:
+                return set()
+
         res = item_set.copy()
         j = list(item_set)
 
@@ -44,12 +47,9 @@ class Lr1:
             if dot_position + 1 < len(production):
                 beta = production[dot_position + 1]
 
-            # if beta is None:
-            #     continue
-
             # for each production of the non terminal B
             for prod_idx in self.grammar.production_adress[B]:
-                alpha = list(self._get_look_ahead(item))
+                alpha = list(_get_look_ahead(item))
 
                 if beta is not None:
                     beta_alpha = [beta] + alpha
@@ -59,36 +59,31 @@ class Lr1:
                 _, first_beta_alpha = self.grammar.first_production(beta_alpha)
                 first_beta_alpha = set(first_beta_alpha)
                 b_item = (prod_idx, 0)
-                self._set_look_ahead(b_item, first_beta_alpha)
+                _set_look_ahead(b_item, first_beta_alpha)
 
                 # We add the item to the answer
                 res.add(b_item)
                 # We also add the item to the stack
                 j.append(b_item)
 
-        return res
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return res, look_aheads
 
     def go_to(self, item_set, symbol):
-        pass
+        j = set()
+        for item in item_set:
+            key, production, dot_position = self._decode_grammar_item(item)
+
+            # We check that the dot is not at the end of the production
+            if dot_position >= len(production):
+                continue
+
+            if production[dot_position] == symbol:
+                j.add((key, dot_position + 1))
+
+        return self.closure(j)
 
     def get_item_sets(self):
         pass
-
 
     def _decode_grammar_item(self, grammar_item: Tuple):
         """

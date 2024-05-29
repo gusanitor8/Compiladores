@@ -1,5 +1,5 @@
 from typing import Tuple, Set
-from src.constants import EPSILON
+from src.constants import EPSILON, ENDMAKER
 
 
 class Grammar:
@@ -159,3 +159,54 @@ class Grammar:
                     return False, first_
 
         return nullable_, first_
+
+    def follow(self):
+        def get_follow_set_length(follow_set_):
+            size = 0
+            for value in follow_set_.values():
+                size += len(value)
+
+            return size
+
+        key, _, _ = self.decode_grammar_item((0, 0))
+        follow_set = {key: ENDMAKER}
+
+        old_len = 0
+        new_len = get_follow_set_length(follow_set)
+
+        while new_len != old_len:
+            old_len = new_len
+            for full_production in self.productions:
+                symbol = list(full_production.keys())[0]
+                production = full_production[symbol]
+
+                for index, symbol in enumerate(production):
+
+                    # Si es el primer elemento de la produccion
+                    # if index == 0:
+                    #     continue
+                    if symbol not in self.non_terminals:
+                        continue
+
+                    # Si el elemento es el ultimo de la produccion
+                    if index == len(production) - 1:
+                        continue
+
+                    lookahead = production[index + 1]
+                    nullable, first_set = self.first(lookahead)
+                    if nullable:
+                        first_set = first_set - {EPSILON}
+                        # TODO: manejar el caso, todo lo que es follow de rhs es follow de lhs
+                        if lookahead in follow_set and symbol in follow_set:
+                            follow_set[symbol] = follow_set[symbol] | follow_set[lookahead]
+                        elif lookahead in follow_set:
+                            follow_set[symbol] = follow_set[lookahead]
+
+                    if symbol in follow_set:
+                        follow_set[symbol] = follow_set[symbol] | first_set
+                    else:
+                        follow_set[symbol] = first_set
+
+                new_len = get_follow_set_length(follow_set)
+
+        return follow_set

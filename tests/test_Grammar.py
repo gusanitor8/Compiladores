@@ -54,3 +54,25 @@ def test_grammar():
     assert nullable is True
     assert first_set == {'+', EPSILON}
 
+
+def test_follow():
+    productions = [
+        {'e': ['t', "e'"]},
+        {"e'": ["+", 't', "e'"]},
+        {"e'": [EPSILON]},
+        {'t': ['f', "t'"]},
+        {"t'": ["*", 'f', "t'"]},
+        {"t'": [EPSILON]},
+        {'f': ['(', 'e', ')']},
+        {'f': ['ID']}
+    ]
+    tokens = {'+', '*', '(', ')', 'ID'}
+    production_adress = {'e': [0], "e'": [1, 2], 't': [3], "t'": [4, 5], 'f': [6, 7]}
+    print()
+    grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
+    for non_terminal in grammar.non_terminals:
+        nullable, first_set = grammar.first(non_terminal)
+        print(non_terminal, end="\t\t")
+        print(first_set, end="\t\t")
+        print(nullable)
+
