@@ -70,9 +70,11 @@ def test_follow():
     production_adress = {'e': [0], "e'": [1, 2], 't': [3], "t'": [4, 5], 'f': [6, 7]}
     print()
     grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
-    for non_terminal in grammar.non_terminals:
-        nullable, first_set = grammar.first(non_terminal)
-        print(non_terminal, end="\t\t")
-        print(first_set, end="\t\t")
-        print(nullable)
+    follow_set = grammar.follow()
+    print(follow_set)
+    # for non_terminal in grammar.non_terminals:
+    #     nullable, first_set = grammar.first(non_terminal)
+    #     print(non_terminal, end="\t\t")
+    #     print(first_set, end="\t\t")
+    #     print(nullable)
 

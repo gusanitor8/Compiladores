@@ -19,6 +19,9 @@ class Grammar:
 
     def _classify_symbols(self):
         for symbol in self.symbols:
+            if symbol == EPSILON:
+                continue
+
             if symbol.islower():
                 self.non_terminals.add(symbol)
             else:
@@ -77,11 +80,11 @@ class Grammar:
         :return: a set of symbols, and True if its nullable or False if its not
         """
         nullable_ = False
-        if symbol not in self.non_terminals:
-            return False, {symbol}
-
         if symbol == EPSILON:
             return True, {EPSILON}
+
+        if symbol not in self.non_terminals:
+            return False, {symbol}
 
         first_ = set()
         symbol_idxs = self.production_adress[symbol]
@@ -140,6 +143,8 @@ class Grammar:
                 first_ = first_set | first_
                 nullable_ = nullable or nullable_
 
+        # Si alguna de las otras producciones es anulable entonces aplicamos first al simbolo
+        # del lado derecho de nuestra recursion por la izquierda
         if nullable_:
             for left_recursive_production_idx in left_recursive_productions_idxs:
                 nullable = True
@@ -164,49 +169,56 @@ class Grammar:
         def get_follow_set_length(follow_set_):
             size = 0
             for value in follow_set_.values():
+                size += 1
                 size += len(value)
 
             return size
 
         key, _, _ = self.decode_grammar_item((0, 0))
-        follow_set = {key: ENDMAKER}
+        follow_set = {key: {ENDMAKER}}
 
         old_len = 0
         new_len = get_follow_set_length(follow_set)
 
         while new_len != old_len:
             old_len = new_len
-            for full_production in self.productions:
-                symbol = list(full_production.keys())[0]
-                production = full_production[symbol]
+            for prod_idx, full_production in enumerate(self.productions):
+                lhs = list(full_production.keys())[0]
+                production = full_production[lhs]
 
-                for index, symbol in enumerate(production):
-
-                    # Si es el primer elemento de la produccion
-                    # if index == 0:
-                    #     continue
-                    if symbol not in self.non_terminals:
+                for symbol_idx, B in enumerate(production):
+                    # We check B is a terminal
+                    if B not in self.non_terminals:
                         continue
 
-                    # Si el elemento es el ultimo de la produccion
-                    if index == len(production) - 1:
-                        continue
+                    # We check if there is a beta
+                    if symbol_idx + 1 >= len(production):
+                        # TODO: if theres no beta that means the symbol is the last one in the production
+                        # this means that we must add follow_set[lhs] to follow_set[B]
+                        if lhs in follow_set:
+                            if B in follow_set:
+                                follow_set[B] = follow_set[B] | follow_set[lhs]
+                            else:
+                                follow_set[B] = follow_set[lhs]
+                        break  # We break from the inner for
 
-                    lookahead = production[index + 1]
-                    nullable, first_set = self.first(lookahead)
-                    if nullable:
-                        first_set = first_set - {EPSILON}
-                        # TODO: manejar el caso, todo lo que es follow de rhs es follow de lhs
-                        if lookahead in follow_set and symbol in follow_set:
-                            follow_set[symbol] = follow_set[symbol] | follow_set[lookahead]
-                        elif lookahead in follow_set:
-                            follow_set[symbol] = follow_set[lookahead]
-
-                    if symbol in follow_set:
-                        follow_set[symbol] = follow_set[symbol] | first_set
+                    beta = production[symbol_idx + 1:]
+                    first_beta_nullable, first_beta = self.first_production(beta)
+                    # TODO: check follow_set[B] exist
+                    if B in follow_set:
+                        follow_set[B] = follow_set[B] | first_beta - {EPSILON}
                     else:
-                        follow_set[symbol] = first_set
+                        follow_set[B] = first_beta - {EPSILON}
 
-                new_len = get_follow_set_length(follow_set)
+                    # if beta is nullable then
+                    if first_beta_nullable:
+                        if lhs in follow_set:
+                            # TODO: We must check if follow_set[B] and follow_set[lhs] exist
+                            # TODO: CORRECTION the rest of the production must be nullable not just beta
+                            if B in follow_set:
+                                follow_set[B] = follow_set[B] | follow_set[lhs]
+                            else:
+                                follow_set[B] = follow_set[lhs]
 
+            new_len = get_follow_set_length(follow_set)
         return follow_set
