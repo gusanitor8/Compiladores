@@ -4,6 +4,11 @@ from graphviz import Digraph
 
 class Builder:
     def __init__(self, grammar: List[Dict], grammar_adresses: Dict[str, List[int]]):
+        """
+        This class is in charge of building the LR(0) automaton. NOTE: The grammar MUST be augmented beforehand
+        :param grammar:
+        :param grammar_adresses:
+        """
         self.grammar = grammar
         self.lhs_set = grammar_adresses
 
@@ -22,7 +27,7 @@ class Builder:
             else:
                 self.terminals.add(symbol)
 
-    def _decode_item(self, item: Tuple) -> Tuple:
+    def decode_item(self, item: Tuple) -> Tuple:
         """
         This method decodes an item
         :param item: Tuple
@@ -141,7 +146,7 @@ class Builder:
         This method returns the item sets of the LR(0) automaton
         :return:
         """
-        self._augment_grammar()
+        # self._augment_grammar()
         initial_item = self._get_initial_item()
         initial_set = self.closure(initial_item)
         grammar_symbols = self._get_symbols()
@@ -184,7 +189,7 @@ class Builder:
 
         return index_set_dic, lr0
 
-    def draw_automaton(self, index_set_dic, lr0, filename:str  = 'LR0_prueba'):
+    def draw_automaton(self, index_set_dic, lr0, filename: str = 'LR0_prueba'):
         automaton = Digraph('automaton', node_attr={'shape': 'record'}, format='png')
 
         for idx, item_set in index_set_dic.items():
@@ -192,7 +197,7 @@ class Builder:
 
             is_final = False
             for item in item_set:
-                head, body, dot_position = self._decode_item(item)
+                head, body, dot_position = self.decode_item(item)
 
                 item_html += f'<I>{head}</I> &#8594; '
 
@@ -212,7 +217,6 @@ class Builder:
 
                 if item == (0, 1):
                     is_final = True
-
 
                 item_html += '<BR ALIGN="LEFT"/>'
             automaton.node(f'I{idx}', f'{item_html}>')

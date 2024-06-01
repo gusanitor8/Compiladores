@@ -69,7 +69,7 @@ def test_follow():
     tokens = {'+', '*', '(', ')', 'ID'}
     production_adress = {'e': [0], "e'": [1, 2], 't': [3], "t'": [4, 5], 'f': [6, 7]}
     print()
-    grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
+    grammar = Grammar(tokens, productions, production_adress, augment_grammar=False)
     follow_set = grammar.follow()
     print(follow_set)
     # for non_terminal in grammar.non_terminals:

@@ -17,6 +17,28 @@ class Grammar:
         self.initial_item = self.get_initial_item()
         self._classify_symbols()
 
+        self._follow_set = self.follow()
+        self._first_set = self.compute_first_set()
+
+    def get_first_set(self, symbol: str):
+        if symbol in self._first_set:
+            return self._first_set[symbol]
+        else:
+            return self.first(symbol)
+
+    def get_follow_set(self, symbol: str):
+        if symbol in self._follow_set:
+            return self._follow_set[symbol]
+        else:
+            return set()
+
+    def compute_first_set(self):
+        first_set = {}
+        for symbol in self.non_terminals:
+            first_set_prime = self.first(symbol)
+            first_set[symbol] = first_set_prime
+        return first_set
+
     def _classify_symbols(self):
         for symbol in self.symbols:
             if symbol == EPSILON:
