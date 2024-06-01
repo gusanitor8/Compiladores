@@ -34,7 +34,30 @@ def test__compute_action():
 
     grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
     parser = Parser(grammar)
-    print("hi")
+    print()
+    print("grammar productions: \n")
+    for idx, prod in enumerate(grammar.productions):
+        print(f"{idx}: {prod}")
+
+    print("")
+    parser.print_table()
+
+    productions = [
+        {'s': ['a', 'b']},
+        {'s': ['b', 'a']},
+        {'a': ['A']},
+        {'b': ['A']}
+    ]
+    tokens = {"A"}
+    production_adress = {'s': [0, 1], 'a': [2], 'b': [3]}
+
+    grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
+    try:
+        parser = Parser(grammar)
+    except ValueError:
+        assert True
+
+
 
 
 
