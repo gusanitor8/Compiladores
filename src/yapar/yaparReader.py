@@ -163,5 +163,5 @@ def run(file_path: str):
     if not separator_found_:
         raise Exception("Syntax error: separator not found")
     
-    return tokens, productions, productions_adress
+    return tokens, productions, productions_adress, ignore
     

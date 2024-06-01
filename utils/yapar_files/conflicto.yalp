@@ -1,0 +1,13 @@
+%token A B C WHITESPACE
+IGNORE WHITESPACE
+
+%%
+
+s: 
+	C a B A 
+	| C B B B 
+	| B a
+;
+a: 
+		B
+;

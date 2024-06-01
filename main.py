@@ -9,16 +9,24 @@ from lexicalOut.lexical_analizer.lexicalAnalizer import run as lexical_analizer_
 
 
 def run():
-    YALEX_PATH = "./utils/yalex_files/YALex2.txt"
-    YAPAR_PATH = "./utils/yapar_files/YAPar5.txt"
+    YALEX_PATH = "./utils/yalex_files/slr-1 (1).yal"
+    YAPAR_PATH = "./utils/yapar_files/slr-1 (2).yalp"
     INPUT_PATH = "./In/text.txt"
 
     # TODO: NOTE: do NOT enter yapars with non ascii characters since it was not designed to handle them
     # We get the grammar from the yapar file
-    tokens, productions, production_adress = yapar_run(YAPAR_PATH)
+    tokens, productions, production_adress, ignore = yapar_run(YAPAR_PATH)
 
     # We get the tokens from the yalex file
     yalex_tokens = set(token_getter_run(YALEX_PATH))
+
+    clean_tokens = set()
+    for token in yalex_tokens:
+        tok = token.strip("'")
+        clean_tokens.add(tok)
+
+    yalex_tokens = clean_tokens
+
     print(yalex_tokens)
     print(tokens)
 
@@ -28,10 +36,19 @@ def run():
 
     # TODO: NOTE: it is not necessary to compile the yalex every time
     # We generate a lexical analizer based on the yalex file
-    # LexicalAnalizerGenerator(YALEX_PATH, "lexical_analizer")
+    LexicalAnalizerGenerator(YALEX_PATH, "lexical_analizer")
 
     # We get the token stream from the input
     token_stream = lexical_analizer_run(INPUT_PATH)
+    print()
+    print(token_stream)
+    print()
+
+    # We remove the ignored tokens from the token stream
+    new_token_stream = []
+    for token in token_stream:
+        if token not in ignore:
+            new_token_stream.append(token)
 
     grammar = Grammar(tokens, productions, production_adress, augment_grammar=True)
     parser = Parser(grammar)
@@ -40,7 +57,7 @@ def run():
     parser.print_table()
 
     # We parse the token stream
-    analizer = SyntacticAnalizer(parser, token_stream)
+    analizer = SyntacticAnalizer(parser, new_token_stream)
     analizer.parse()
 
 
