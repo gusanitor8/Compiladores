@@ -11,16 +11,16 @@ b:
 ;
 c:
      B c
-    | epsilon
+    | 𝜀
 ;
 d:
      e f
 ;
 e:
      G
-    | epsilon
+    | 𝜀
 ;
 f:
      F
-    | epsilon
+    | 𝜀
 ;

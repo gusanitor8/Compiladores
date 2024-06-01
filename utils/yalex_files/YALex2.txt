@@ -8,17 +8,17 @@ let letra = ['a'-'z''A'-'Z']
 let digit = ['0'-'9']
 let digits = digit+
 let id = (letra)(letra|digit)*
-let number = digits(.digits)?(('E'('_+'|'-')?)digits)?
+let number = digits('.'digits)?(('E'('_'|'-')?)digits)?
 
 rule tokens =
-  | id        { return ID }
-  | number    { return NUMBER }
-  | '+'       { return PLUS }
-  | '-'       { return MINUS }
-  | '*'       { return TIMES }
-  | '/'       { return DIV }
-  | '('       { return LPAREN }
-  | ')'       { return RPAREN }
+  | id        { 'ID' }
+  | number    { 'NUMBER' }
+  | '+'       { 'PLUS' }
+  | '-'       { 'MINUS' }
+  | '*'       { 'TIMES' }
+  | '/'       { 'DIV' }
+  | '('       { 'LPAREN' }
+  | ')'       { 'RPAREN' }
 
 %%
 

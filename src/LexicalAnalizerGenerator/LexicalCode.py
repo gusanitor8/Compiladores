@@ -24,6 +24,7 @@ def search_tokens(automata: Automata, final_node_precedence: dict, actions: dict
     :param actions: dict
     :return: None
     """
+    token_stream = []
 
     while string:
         token = find_token(automata, string)
@@ -38,8 +39,11 @@ def search_tokens(automata: Automata, final_node_precedence: dict, actions: dict
             token_state = min(token_states, key=lambda x: final_node_precedence[x])
             action = actions[token_state]
             print("t: " + token_string, end=" ")
-            eval(action)
+            token = eval(action)
             string = string[token_length:]
+            token_stream.append(token)
+            
+    return token_stream
 
 
 def find_token(automata: Automata, word: str):
@@ -80,7 +84,7 @@ def find_token(automata: Automata, word: str):
 
 
 def unpickle():
-    with open("./lexicalAnalizer.pkl", "rb") as file:
+    with open("./lexicalOut/lexical_analizer/lexicalAnalizer.pkl", "rb") as file:
         automata = pickle.load(file)
     return automata            
 '''
@@ -94,5 +98,5 @@ def run(file_path: str):
     
     content = get_file_content(file_path)
 
-    search_tokens(automata, final_node_precedence, actions, content)
+    return search_tokens(automata, final_node_precedence, actions, content)
 '''
